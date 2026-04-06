@@ -1,0 +1,63 @@
+version: 1
+project: AI
+notes:
+  - "Authority matrix is enforced by policy engine. Unauthorized emissions are rejected."
+  - "System emits only deterministic derived events (e.g., token issuance) and never via UI."
+agents:
+  A1:
+    name: Supplier Qualification
+    agent_id: 1
+    allowed_events: [SUPPLIER_APPROVED, SUPPLIER_REJECTED]
+  A2:
+    name: Specification & Standards
+    agent_id: 2
+    allowed_events: [SPECIFICATION_LOCKED]
+  A3:
+    name: Reference Consistency
+    agent_id: 3
+    allowed_events: [REFERENCE_APPROVED, REFERENCE_REJECTED]
+  A4:
+    name: Document Verification
+    agent_id: 4
+    allowed_events: [DOCUMENTS_VERIFIED, DOCUMENTS_REJECTED]
+  A5:
+    name: Contract Architect
+    agent_id: 5
+    allowed_events: [CONTRACT_SIGNED]
+  A6:
+    name: Field Inspector (Human-Bound)
+    agent_id: 6
+    allowed_events: [INSPECTION_PASSED, INSPECTION_FAILED]
+    constraints:
+      - "Evidence required"
+      - "Device binding required"
+      - "GPS/time stamps required"
+      - "No gallery uploads"
+  A7:
+    name: Logistics Verification
+    agent_id: 7
+    allowed_events: [SHIPMENT_VERIFIED, SHIPMENT_REJECTED]
+  A8:
+    name: Time Arbiter
+    agent_id: 8
+    allowed_events: [TIMER_STARTED, TIMER_EXPIRED]
+    constraints:
+      - "No pause/extend/reset"
+      - "Expiry at started_at + 168h"
+  A9:
+    name: Closure & Validation
+    agent_id: 9
+    allowed_events: [TOKEN_C_ISSUED, DEAL_CLOSED]
+system:
+  allowed_events:
+    - TOKEN_A_ISSUED
+    - TOKEN_B_ISSUED
+    - DISPUTE_RESOLVED
+    - DISPUTE_REJECTED
+  constraints:
+    - "System events must be deterministic outputs of engines (token engine, dispute engine), not UI actions."
+users:
+  allowed_events:
+    - DEAL_CREATED
+    - GOODS_RECEIVED
+    - DISPUTE_OPENED

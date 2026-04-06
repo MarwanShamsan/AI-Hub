@@ -1,0 +1,74 @@
+version: 1
+project: AI
+notes:
+  - "Disputes are predefined and evidence-bound. No free-form arbitration."
+  - "Disputes must be opened before TIMER_EXPIRED."
+global_rules:
+  must_have_evidence: true
+  allowed_only_between:
+    from_event: TIMER_STARTED
+    until_event: TIMER_EXPIRED
+  late_disputes: "always rejected"
+
+dispute_types:
+
+  QUALITY_OBJECTION:
+    required_evidence:
+      - "photos_or_video_of_goods"
+      - "spec_measurement_proof"
+    typical_outcomes:
+      - RESOLVE_REPLACEMENT
+      - RESOLVE_REFUND_PARTIAL
+      - REJECT_INSUFFICIENT_EVIDENCE
+
+  FALSE_CLAIM:
+    required_evidence:
+      - "contradicting_documents_or_measurements"
+    typical_outcomes:
+      - RESOLVE_PENALTY
+      - REJECT_INSUFFICIENT_EVIDENCE
+
+  MANUFACTURING_DELAY:
+    required_evidence:
+      - "timeline_docs"
+      - "messages_or_logs"
+    typical_outcomes:
+      - RESOLVE_EXTENSION_AUTOMATIC_POLICY
+      - REJECT_NOT_COVERED
+
+  TAMPERING_SEAL:
+    required_evidence:
+      - "seal_photos"
+      - "tracking_anomaly"
+      - "port_or_carrier_notice_if_any"
+    typical_outcomes:
+      - RESOLVE_FREEZE_AND_INVESTIGATE_PATH
+      - REJECT_INSUFFICIENT_EVIDENCE
+
+  FORCE_MAJEURE:
+    required_evidence:
+      - "official_notice"
+      - "carrier_or_authority_document"
+    typical_outcomes:
+      - RESOLVE_FORCE_MAJEURE_POLICY
+      - REJECT_NOT_VALID
+
+  REFUSAL_TO_RECEIVE:
+    required_evidence:
+      - "delivery_attempt_proof"
+      - "port_or_carrier_record"
+    typical_outcomes:
+      - RESOLVE_ACCEPTANCE_BY_TIME_POLICY
+      - REJECT_INSUFFICIENT_EVIDENCE
+
+resolution_codes:
+  - RESOLVE_REPLACEMENT
+  - RESOLVE_REFUND_PARTIAL
+  - RESOLVE_PENALTY
+  - RESOLVE_EXTENSION_AUTOMATIC_POLICY
+  - RESOLVE_FREEZE_AND_INVESTIGATE_PATH
+  - RESOLVE_FORCE_MAJEURE_POLICY
+  - RESOLVE_ACCEPTANCE_BY_TIME_POLICY
+  - REJECT_INSUFFICIENT_EVIDENCE
+  - REJECT_NOT_VALID
+  - REJECT_NOT_COVERED

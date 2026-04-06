@@ -1,0 +1,23 @@
+{
+  "tool_name": "hash-chain-verifier",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-03-31T18:30:10.303Z",
+  "mode": "deal",
+  "database_target": "postgres-events-ledger",
+  "result": {
+    "status": "INVALID",
+    "mode": "deal",
+    "deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+    "checked_events": 5,
+    "first_error": {
+      "event_id": "92f5fa8a-c22a-45c6-9f60-efb49a2e5d25",
+      "deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+      "stream_seq": 6,
+      "event_type": "CONTRACT_SIGNED",
+      "code": "PREV_HASH_MISMATCH",
+      "reason": "Event prev_hash does not match predecessor hash",
+      "expected": "5687a0474997fc92899f68b52878010db55ad38fbe785c51325c0d707eeb7a98",
+      "actual": "fake_prev_hash"
+    }
+  }
+}

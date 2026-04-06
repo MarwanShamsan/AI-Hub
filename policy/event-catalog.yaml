@@ -1,0 +1,257 @@
+version: 1
+project: AI
+notes:
+  - "Event catalog defines allowed event types, required payload fields, authority, and validation rules."
+  - "State MUST be derived by replaying events."
+canonical_event_envelope:
+  required_fields:
+    - id
+    - deal_id
+    - event_type
+    - actor_type
+    - actor_id
+    - payload
+    - prev_hash
+    - hash
+    - created_at
+  actor_type_enum: [AGENT, USER, SYSTEM]
+  agent_id_required_when_actor_type: AGENT
+  created_at: "server UTC ISO-8601"
+  hash_chain:
+    algorithm: "sha256"
+    rule: "hash = sha256(prev_hash + canonical_json(event_without_hash))"
+
+events:
+
+  DEAL_CREATED:
+    authority:
+      actor_type: USER
+      agent_id: null
+    requires_evidence: false
+    payload_schema:
+      deal_title: { type: string, required: true }
+      buyer_id:    { type: string, required: true }
+      supplier_id: { type: string, required: true }
+      currency:    { type: string, required: true }
+    preconditions: []
+    produces_side_effects: []
+
+  SUPPLIER_APPROVED:
+    authority: { actor_type: AGENT, agent_id: 1 }
+    requires_evidence: false
+    payload_schema:
+      supplier_id: { type: string, required: true }
+      risk_score:  { type: number, required: false }
+      notes:       { type: string, required: false }
+    preconditions: [DEAL_CREATED]
+
+  SUPPLIER_REJECTED:
+    authority: { actor_type: AGENT, agent_id: 1 }
+    requires_evidence: false
+    payload_schema:
+      supplier_id: { type: string, required: true }
+      reason_code: { type: string, required: false }
+    preconditions: [DEAL_CREATED]
+    terminal_for_supplier: true
+
+  SPECIFICATION_LOCKED:
+    authority: { actor_type: AGENT, agent_id: 2 }
+    requires_evidence: false
+    payload_schema:
+      spec_version: { type: string, required: true }
+      spec_hash:    { type: string, required: true } # hash of a signed/locked spec doc
+      standards:    { type: array,  required: false } # e.g., ISO references
+    preconditions: [SUPPLIER_APPROVED]
+
+  REFERENCE_APPROVED:
+    authority: { actor_type: AGENT, agent_id: 3 }
+    requires_evidence: false
+    payload_schema:
+      price_ok: { type: boolean, required: true }
+      notes:    { type: string, required: false }
+    preconditions: [SPECIFICATION_LOCKED]
+
+  REFERENCE_REJECTED:
+    authority: { actor_type: AGENT, agent_id: 3 }
+    requires_evidence: false
+    payload_schema:
+      reason_code: { type: string, required: true }
+      notes:       { type: string, required: false }
+    preconditions: [SPECIFICATION_LOCKED]
+
+  DOCUMENTS_VERIFIED:
+    authority: { actor_type: AGENT, agent_id: 4 }
+    requires_evidence: false
+    payload_schema:
+      verified_docs:
+        type: array
+        required: true
+        item_schema:
+          doc_type:   { type: string, required: true }
+          doc_ref:    { type: string, required: true } # URL/ID in vault
+          doc_hash:   { type: string, required: true }
+          authority:  { type: string, required: false } # issuing authority
+    preconditions: [REFERENCE_APPROVED]
+
+  DOCUMENTS_REJECTED:
+    authority: { actor_type: AGENT, agent_id: 4 }
+    requires_evidence: false
+    payload_schema:
+      rejected_docs:
+        type: array
+        required: true
+        item_schema:
+          doc_type:  { type: string, required: true }
+          reason:    { type: string, required: true }
+    preconditions: [REFERENCE_APPROVED]
+
+  CONTRACT_SIGNED:
+    authority: { actor_type: AGENT, agent_id: 5 }
+    requires_evidence: false
+    payload_schema:
+      contract_version: { type: string, required: true }
+      contract_hash:    { type: string, required: true }
+      token_policy_ref: { type: string, required: true } # reference in docs/token-rules.yaml
+    preconditions: [DOCUMENTS_VERIFIED]
+
+  INSPECTION_PASSED:
+    authority: { actor_type: AGENT, agent_id: 6 }
+    requires_evidence: true
+    payload_schema:
+      evidence_bundle:
+        type: array
+        required: true
+        item_schema:
+          evidence_id: { type: string, required: true }
+          evidence_hash: { type: string, required: true }
+      gps:        { type: object, required: true }
+      device_id:  { type: string, required: true }
+      notes:      { type: string, required: false }
+    preconditions: [CONTRACT_SIGNED]
+
+  INSPECTION_FAILED:
+    authority: { actor_type: AGENT, agent_id: 6 }
+    requires_evidence: true
+    payload_schema:
+      evidence_bundle:
+        type: array
+        required: true
+        item_schema:
+          evidence_id: { type: string, required: true }
+          evidence_hash: { type: string, required: true }
+      failure_code: { type: string, required: true }
+      gps:          { type: object, required: true }
+      device_id:    { type: string, required: true }
+    preconditions: [CONTRACT_SIGNED]
+
+  TOKEN_A_ISSUED:
+    authority: { actor_type: SYSTEM, agent_id: null }
+    requires_evidence: false
+    payload_schema:
+      token:       { type: string, required: true } # "A"
+      releases:    { type: number, required: true } # percentage or amount per contract
+      basis_event: { type: string, required: true } # event id of INSPECTION_PASSED
+    preconditions: [INSPECTION_PASSED]
+
+  SHIPMENT_VERIFIED:
+    authority: { actor_type: AGENT, agent_id: 7 }
+    requires_evidence: false
+    payload_schema:
+      container_number: { type: string, required: true }
+      seal_number:      { type: string, required: true }
+      bill_of_lading:   { type: string, required: true }
+      tracking_ref:     { type: string, required: true }
+    preconditions: [TOKEN_A_ISSUED]
+
+  SHIPMENT_REJECTED:
+    authority: { actor_type: AGENT, agent_id: 7 }
+    requires_evidence: false
+    payload_schema:
+      reason_code: { type: string, required: true }
+      notes:       { type: string, required: false }
+    preconditions: [TOKEN_A_ISSUED]
+
+  TOKEN_B_ISSUED:
+    authority: { actor_type: SYSTEM, agent_id: null }
+    requires_evidence: false
+    payload_schema:
+      token:       { type: string, required: true } # "B"
+      releases:    { type: number, required: true }
+      basis_event: { type: string, required: true } # event id of SHIPMENT_VERIFIED
+    preconditions: [SHIPMENT_VERIFIED]
+
+  GOODS_RECEIVED:
+    authority:
+      actor_type: USER
+      agent_id: null
+    requires_evidence: false
+    payload_schema:
+      received_at: { type: string, required: true } # ISO UTC
+      location:    { type: string, required: false }
+    preconditions: [TOKEN_B_ISSUED]
+
+  TIMER_STARTED:
+    authority: { actor_type: AGENT, agent_id: 8 }
+    requires_evidence: false
+    payload_schema:
+      started_at: { type: string, required: true } # ISO UTC
+      expires_at: { type: string, required: true } # started_at + 168h
+    preconditions: [GOODS_RECEIVED]
+
+  DISPUTE_OPENED:
+    authority: { actor_type: USER, agent_id: null }
+    requires_evidence: true
+    payload_schema:
+      dispute_type:  { type: string, required: true }
+      evidence_bundle:
+        type: array
+        required: true
+        item_schema:
+          evidence_id: { type: string, required: true }
+          evidence_hash: { type: string, required: true }
+      opened_at: { type: string, required: true } # ISO UTC
+    preconditions: [TIMER_STARTED]
+    time_constraint: "must be before TIMER_EXPIRED"
+
+  DISPUTE_RESOLVED:
+    authority: { actor_type: SYSTEM, agent_id: null }
+    requires_evidence: false
+    payload_schema:
+      resolution_code: { type: string, required: true }
+      resolved_at:     { type: string, required: true }
+    preconditions: [DISPUTE_OPENED]
+
+  DISPUTE_REJECTED:
+    authority: { actor_type: SYSTEM, agent_id: null }
+    requires_evidence: false
+    payload_schema:
+      reason_code:    { type: string, required: true }
+      reason_message: { type: string, required: false }
+      rejected_at:    { type: string, required: true }
+      details:        { type: object, required: false }
+    # May be recorded without DISPUTE_OPENED (e.g. missing evidence, or opened after expiry).
+    preconditions: [TIMER_STARTED]
+
+  TIMER_EXPIRED:
+    authority: { actor_type: AGENT, agent_id: 8 }
+    requires_evidence: false
+    payload_schema:
+      expired_at: { type: string, required: true }
+    preconditions: [TIMER_STARTED]
+
+  TOKEN_C_ISSUED:
+    authority: { actor_type: AGENT, agent_id: 9 }
+    requires_evidence: false
+    payload_schema:
+      token:       { type: string, required: true } # "C"
+      releases:    { type: number, required: true }
+      basis_event: { type: string, required: true } # event id of TIMER_EXPIRED
+    preconditions: [TIMER_EXPIRED]
+
+  DEAL_CLOSED:
+    authority: { actor_type: AGENT, agent_id: 9 }
+    requires_evidence: false
+    payload_schema:
+      closed_at: { type: string, required: true }
+      closure_certificate_ref: { type: string, required: false }
+    preconditions: [TOKEN_C_ISSUED]

@@ -1,0 +1,53 @@
+version: 1
+project: AI
+notes:
+  - "Tokens are execution permissions emitted as events."
+  - "Amounts/percentages may be set per contract; defaults are placeholders."
+defaults:
+  token_A_release_percent: 50
+  token_B_release_percent: 30
+  token_C_release_percent: 20
+
+tokens:
+
+  A:
+    event: TOKEN_A_ISSUED
+    issued_by: SYSTEM
+    prerequisites:
+      required_events: [INSPECTION_PASSED]
+      recommended_events: [SPECIFICATION_LOCKED, CONTRACT_SIGNED]
+    evidence_required: false
+    release:
+      mode: percent
+      value: "${defaults.token_A_release_percent}"
+    irreversible: true
+
+  B:
+    event: TOKEN_B_ISSUED
+    issued_by: SYSTEM
+    prerequisites:
+      required_events: [SHIPMENT_VERIFIED]
+      recommended_events: [TOKEN_A_ISSUED]
+    evidence_required: false
+    release:
+      mode: percent
+      value: "${defaults.token_B_release_percent}"
+    irreversible: true
+
+  C:
+    event: TOKEN_C_ISSUED
+    issued_by: "AGENT_9"
+    prerequisites:
+      required_events: [TIMER_EXPIRED]
+      forbidden_conditions:
+        - "any open valid dispute"
+        - "contradiction between Agents 6, 7, and 8 reports"
+    evidence_required: false
+    release:
+      mode: percent
+      value: "${defaults.token_C_release_percent}"
+    irreversible: true
+    post_actions:
+      - "emit DEAL_CLOSED"
+      - "archive deal artifacts"
+      - "burn execution authority for the deal"

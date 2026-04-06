@@ -1,0 +1,54 @@
+{
+  "tool_name": "hash-chain-verifier",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-03-31T18:30:51.871Z",
+  "mode": "full-ledger",
+  "database_target": "postgres-events-ledger",
+  "result": {
+    "status": "INVALID",
+    "mode": "full-ledger",
+    "checked_deals": 11,
+    "checked_events": 117,
+    "first_invalid_deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+    "first_error": {
+      "event_id": "92f5fa8a-c22a-45c6-9f60-efb49a2e5d25",
+      "deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+      "stream_seq": 6,
+      "event_type": "CONTRACT_SIGNED",
+      "code": "PREV_HASH_MISMATCH",
+      "reason": "Event prev_hash does not match predecessor hash",
+      "expected": "5687a0474997fc92899f68b52878010db55ad38fbe785c51325c0d707eeb7a98",
+      "actual": "fake_prev_hash"
+    },
+    "invalid_deals": [
+      {
+        "deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+        "checked_events": 5,
+        "first_error": {
+          "event_id": "92f5fa8a-c22a-45c6-9f60-efb49a2e5d25",
+          "deal_id": "05c4b952-8fa2-447b-946e-08831257d8d0",
+          "stream_seq": 6,
+          "event_type": "CONTRACT_SIGNED",
+          "code": "PREV_HASH_MISMATCH",
+          "reason": "Event prev_hash does not match predecessor hash",
+          "expected": "5687a0474997fc92899f68b52878010db55ad38fbe785c51325c0d707eeb7a98",
+          "actual": "fake_prev_hash"
+        }
+      },
+      {
+        "deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+        "checked_events": 4,
+        "first_error": {
+          "event_id": "fffd65b0-c6a6-4d96-a8e1-4fad4e2f7adf",
+          "deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+          "stream_seq": 5,
+          "event_type": "DOCUMENTS_VERIFIED",
+          "code": "HASH_MISMATCH",
+          "reason": "Stored hash does not match recomputed canonical event hash",
+          "expected": "2ae09856550b050984506d61176afeee996122953e66cac41e0f7986fb6dfc63",
+          "actual": "3c18d21401125ab10045a82d5870df252474b8dd399ba9ddf402baa9f0274af3"
+        }
+      }
+    ]
+  }
+}

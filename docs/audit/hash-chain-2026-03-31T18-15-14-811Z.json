@@ -1,0 +1,14 @@
+{
+  "tool_name": "hash-chain-verifier",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-03-31T18:15:14.811Z",
+  "mode": "full-ledger",
+  "database_target": "postgres-events-ledger",
+  "result": {
+    "status": "VALID",
+    "mode": "full-ledger",
+    "checked_deals": 11,
+    "checked_events": 134,
+    "invalid_deals": []
+  }
+}

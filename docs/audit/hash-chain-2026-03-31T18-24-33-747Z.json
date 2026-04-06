@@ -1,0 +1,40 @@
+{
+  "tool_name": "hash-chain-verifier",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-03-31T18:24:33.747Z",
+  "mode": "full-ledger",
+  "database_target": "postgres-events-ledger",
+  "result": {
+    "status": "INVALID",
+    "mode": "full-ledger",
+    "checked_deals": 11,
+    "checked_events": 130,
+    "first_invalid_deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+    "first_error": {
+      "event_id": "fffd65b0-c6a6-4d96-a8e1-4fad4e2f7adf",
+      "deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+      "stream_seq": 5,
+      "event_type": "DOCUMENTS_VERIFIED",
+      "code": "HASH_MISMATCH",
+      "reason": "Stored hash does not match recomputed canonical event hash",
+      "expected": "2ae09856550b050984506d61176afeee996122953e66cac41e0f7986fb6dfc63",
+      "actual": "3c18d21401125ab10045a82d5870df252474b8dd399ba9ddf402baa9f0274af3"
+    },
+    "invalid_deals": [
+      {
+        "deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+        "checked_events": 4,
+        "first_error": {
+          "event_id": "fffd65b0-c6a6-4d96-a8e1-4fad4e2f7adf",
+          "deal_id": "ec055fac-111d-48fc-8710-a6acc029221f",
+          "stream_seq": 5,
+          "event_type": "DOCUMENTS_VERIFIED",
+          "code": "HASH_MISMATCH",
+          "reason": "Stored hash does not match recomputed canonical event hash",
+          "expected": "2ae09856550b050984506d61176afeee996122953e66cac41e0f7986fb6dfc63",
+          "actual": "3c18d21401125ab10045a82d5870df252474b8dd399ba9ddf402baa9f0274af3"
+        }
+      }
+    ]
+  }
+}

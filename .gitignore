@@ -1,0 +1,38 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Env files (CRITICAL)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Temp
+.tmp/
+.cache/
+
+# Archives
+*.zip
+
+# Ignore ALL env files everywhere
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Allow example only
+!.env.example
+
+generate-ed25519.js
+generate-staging-ed25519.js
