@@ -20,6 +20,6 @@ app.get("/health", (_req, res) => {
 
 app.use("/auth", authRoutes);
 
-app.listen(env.port, () => {
-  console.log(`Auth API running on port ${env.port}`);
+app.listen(env.port, env.host, () => {
+  console.log(`Auth API running on http://${env.host}:${env.port}`);
 });

@@ -13,8 +13,20 @@ function requireEnv(name: string): string {
   return value;
 }
 
+function parsePort(value: string | undefined, fallback: number): number {
+  const parsed = Number(value ?? fallback);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`Invalid port: ${value}`);
+  }
+
+  return parsed;
+}
+
 export const env = {
-  port: Number(process.env.AUTH_API_PORT ?? 4000),
+  port: parsePort(process.env.PORT ?? process.env.AUTH_API_PORT, 4000),
+  host: process.env.HOST ?? "0.0.0.0",
+
   databaseUrl: requireEnv("DATABASE_URL"),
 
   jwtAlg: process.env.JWT_ALG ?? "EdDSA",
