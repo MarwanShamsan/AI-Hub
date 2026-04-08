@@ -23,6 +23,10 @@ async function main() {
 
   const app = await buildServer();
 
+  app.get("/health", async () => {
+    return { status: "ok" };
+  });
+
   runMaterializerLoop(pool).catch((e) => {
     console.error("Materializer crashed", e);
     process.exit(1);
