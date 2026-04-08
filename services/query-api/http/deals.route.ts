@@ -8,7 +8,18 @@ type Deps = {
   registry: DealRegistryRepo;
 };
 
-async function getIdentityOrReject(req: any, reply: any) {
+type AuthenticatedIdentity = {
+  sub: string;
+  actor_type: string;
+  tenant_id: string;
+  role?: string;
+  agent_id?: number | null;
+};
+
+async function getIdentityOrReject(
+  req: any,
+  reply: any
+): Promise<AuthenticatedIdentity | null> {
   try {
     const identity = await extractIdentity(req);
 
@@ -21,7 +32,10 @@ async function getIdentityOrReject(req: any, reply: any) {
       return null;
     }
 
-    return identity;
+    return {
+      ...identity,
+      tenant_id: identity.tenant_id
+    };
   } catch (e: any) {
     reply.status(401).send({
       status: "REJECTED",

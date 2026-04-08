@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "../../dist",
+    "noEmit": false
+  },
+  "include": [
+    "./**/*.ts",
+    "../event-ledger/**/*.ts"
+  ],
+  "exclude": [
+    "../../node_modules",
+    "../../dist",
+    "../../apps",
+    "../../packages",
+    "../auth-api"
+  ]
+}
