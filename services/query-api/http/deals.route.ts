@@ -8,12 +8,8 @@ type Deps = {
   registry: DealRegistryRepo;
 };
 
-type AuthenticatedIdentity = {
-  sub: string;
-  actor_type: string;
+type AuthenticatedIdentity = Awaited<ReturnType<typeof extractIdentity>> & {
   tenant_id: string;
-  role?: string;
-  agent_id?: number | null;
 };
 
 async function getIdentityOrReject(
