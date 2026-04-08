@@ -7,11 +7,11 @@ import { DealRegistryRepo } from "../event-ledger/repo/DealRegistryRepo";
 import { runMaterializerLoop } from "./materializers/runMaterializer";
 
 dotenv.config({
-  path: path.resolve(__dirname, ".env.staging")
+  path: path.resolve(process.cwd(), ".env")
 });
 
 async function main() {
-  const PORT = Number(process.env.QUERY_API_PORT ?? 3002);
+  const PORT = Number(process.env.PORT ?? process.env.QUERY_API_PORT ?? 3002);
   const DATABASE_URL = process.env.DATABASE_URL;
 
   if (!DATABASE_URL) {
@@ -33,7 +33,7 @@ async function main() {
   app.printRoutes();
 
   const address = await app.listen({ port: PORT, host: "0.0.0.0" });
-  console.log(`📖 Query API listening at ${address}`);
+  console.log(`Query API listening at ${address}`);
 }
 
 main().catch((err) => {
