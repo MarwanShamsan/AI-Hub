@@ -28,7 +28,7 @@ export async function findUserByEmail(email: string): Promise<DbUser | null> {
   const result = await pool.query<DbUser>(
     `
       SELECT *
-      FROM auth.users
+      FROM app_auth.users
       WHERE email = $1
       LIMIT 1
     `,
@@ -42,7 +42,7 @@ export async function findUserById(userId: string): Promise<DbUser | null> {
   const result = await pool.query<DbUser>(
     `
       SELECT *
-      FROM auth.users
+      FROM app_auth.users
       WHERE id = $1
       LIMIT 1
     `,
@@ -58,7 +58,7 @@ export async function findPrimaryRoleByUserId(
   const result = await pool.query<DbUserRole>(
     `
       SELECT *
-      FROM auth.user_roles
+      FROM app_auth.user_roles
       WHERE user_id = $1
       ORDER BY created_at ASC
       LIMIT 1
@@ -78,7 +78,7 @@ export async function createUser(params: {
 }): Promise<void> {
   await pool.query(
     `
-      INSERT INTO auth.users (
+      INSERT INTO app_auth.users (
         id, email, password_hash, status, tenant_id
       )
       VALUES ($1, $2, $3, $4, $5)
@@ -95,7 +95,7 @@ export async function createUserRole(params: {
 }): Promise<void> {
   await pool.query(
     `
-      INSERT INTO auth.user_roles (
+      INSERT INTO app_auth.user_roles (
         id, user_id, role, agent_id
       )
       VALUES ($1, $2, $3, $4)
@@ -114,7 +114,7 @@ export async function insertRefreshToken(params: {
 }): Promise<void> {
   await pool.query(
     `
-      INSERT INTO auth.refresh_tokens (
+      INSERT INTO app_auth.refresh_tokens (
         id, user_id, token_hash, expires_at, user_agent, ip_address
       )
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -142,7 +142,7 @@ export async function findRefreshTokenByHash(
   const result = await pool.query(
     `
       SELECT id, user_id, token_hash, expires_at, revoked_at
-      FROM auth.refresh_tokens
+      FROM app_auth.refresh_tokens
       WHERE token_hash = $1
       LIMIT 1
     `,
@@ -155,7 +155,7 @@ export async function findRefreshTokenByHash(
 export async function revokeRefreshToken(tokenId: string): Promise<void> {
   await pool.query(
     `
-      UPDATE auth.refresh_tokens
+      UPDATE app_auth.refresh_tokens
       SET revoked_at = NOW()
       WHERE id = $1
     `,
@@ -166,7 +166,7 @@ export async function revokeRefreshToken(tokenId: string): Promise<void> {
 export async function updateLastLoginAt(userId: string): Promise<void> {
   await pool.query(
     `
-      UPDATE auth.users
+      UPDATE app_auth.users
       SET last_login_at = NOW(),
           updated_at = NOW()
       WHERE id = $1
@@ -183,7 +183,7 @@ export async function insertAuditLog(params: {
 }): Promise<void> {
   await pool.query(
     `
-      INSERT INTO auth.audit_log (id, user_id, event_type, metadata)
+      INSERT INTO app_auth.audit_log (id, user_id, event_type, metadata)
       VALUES ($1, $2, $3, $4::jsonb)
     `,
     [params.id, params.userId, params.eventType, JSON.stringify(params.metadata)]
