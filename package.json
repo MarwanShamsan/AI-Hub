@@ -10,6 +10,7 @@
   "start:command-api": "node dist/services/command-api/index.js",
   "start:request-api": "node dist/services/request-api/index.js",
   "dev:query-api": "ts-node-dev --respawn --transpile-only services/query-api/index.ts",
+  "build:request-api": "tsc -p services/request-api/tsconfig.json",
   "dev:engine": "ts-node-dev --respawn --transpile-only services/engine-runner/index.ts",
   "dev:all": "concurrently -n request,command,query,engine \"npm run dev:request-api\" \"npm run dev:command-api\" \"npm run dev:query-api\" \"npm run dev:engine\"",
   "db:migrate": "node -r ts-node/register/transpile-only services/engine-runner/migrate.ts",
@@ -32,6 +33,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@types/pdf-parse": "^1.1.5",
     "@fastify/cors": "^8.5.0",
     "@fastify/multipart": "^8.3.1",
     "dotenv": "^17.2.4",
