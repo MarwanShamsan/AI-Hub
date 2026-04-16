@@ -6,6 +6,7 @@ import {
   setRefreshToken,
   setStoredUser
 } from "../../lib/storage";
+import { useI18n } from "../../i18n/useI18n";
 
 type LoginForm = {
   email: string;
@@ -14,6 +15,7 @@ type LoginForm = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [form, setForm] = useState<LoginForm>({
     email: "",
@@ -34,12 +36,12 @@ export default function LoginPage() {
     setError("");
 
     if (!form.email.trim()) {
-      setError("Email is required.");
+      setError(t("auth.login.emailRequired"));
       return;
     }
 
     if (!form.password.trim()) {
-      setError("Password is required.");
+      setError(t("auth.login.passwordRequired"));
       return;
     }
 
@@ -57,7 +59,7 @@ export default function LoginPage() {
 
       navigate("/app");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign in.");
+      setError(err instanceof Error ? err.message : t("auth.login.failed"));
     } finally {
       setLoading(false);
     }
@@ -65,14 +67,14 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1>Login</h1>
-      <p>Client portal access for AI Hub.</p>
+      <h1>{t("auth.login.title")}</h1>
+      <p>{t("auth.login.subtitle")}</p>
 
       <form className="stack-md" onSubmit={handleSubmit}>
         <input
           className="input"
           type="email"
-          placeholder="Email"
+          placeholder={t("auth.login.emailPlaceholder")}
           value={form.email}
           onChange={(event) => updateField("email", event.target.value)}
         />
@@ -80,7 +82,7 @@ export default function LoginPage() {
         <input
           className="input"
           type="password"
-          placeholder="Password"
+          placeholder={t("auth.login.passwordPlaceholder")}
           value={form.password}
           onChange={(event) => updateField("password", event.target.value)}
         />
@@ -88,17 +90,18 @@ export default function LoginPage() {
         {error ? <p className="error-text">{error}</p> : null}
 
         <button className="button" type="submit" disabled={loading}>
-          {loading ? "Signing In..." : "Sign In"}
+          {loading ? t("auth.login.submitting") : t("auth.login.submit")}
         </button>
       </form>
 
       <div className="stack-sm top-gap">
         <p className="muted">
-          <Link to="/forgot-password">Forgot password?</Link>
+          <Link to="/forgot-password">{t("auth.login.forgotPassword")}</Link>
         </p>
 
         <p className="muted">
-          New here? <Link to="/register/client">Create a client account</Link>
+          {t("auth.login.newHere")}{" "}
+          <Link to="/register/client">{t("auth.login.createAccount")}</Link>
         </p>
       </div>
     </div>

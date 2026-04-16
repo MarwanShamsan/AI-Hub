@@ -1,0 +1,151 @@
+.dashboard-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  background: var(--bg-app);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0)),
+    var(--bg-shell);
+  color: var(--text-on-dark);
+  padding: 24px 20px;
+}
+
+.sidebar h2 {
+  margin: 0 0 20px;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.sidebar-brand {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+
+.sidebar-brand-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--brand-secondary), var(--brand-primary));
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-brand h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.sidebar-brand-text {
+  margin: 4px 0 0;
+  color: rgba(248, 250, 252, 0.68);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.nav-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.nav-link,
+.nav-link:hover,
+.nav-link:visited,
+.nav-link:active,
+.nav-link:focus {
+  display: block;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: rgba(248, 250, 252, 0.78);
+  transition: 180ms ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.nav-link-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.sidebar-logout {
+  background: linear-gradient(135deg, #172554, #1e3a8a);
+}
+
+.content {
+  padding: 28px;
+}
+
+.locale-switcher {
+  display: grid;
+  gap: 8px;
+}
+
+.locale-switcher label {
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.locale-select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.locale-select:focus {
+  outline: none;
+  border-color: var(--brand-secondary);
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+}
+
+.locale-select option {
+  color: var(--text-primary);
+  background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 20px 16px;
+  }
+
+  .content {
+    padding: 18px;
+  }
+}

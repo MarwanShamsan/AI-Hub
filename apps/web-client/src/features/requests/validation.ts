@@ -5,20 +5,24 @@ export function validateRequestForm(
 ): RequestFormErrors {
   const errors: RequestFormErrors = {};
 
-  if (!values.productName.trim()) {
-    errors.productName = "Product name is required.";
+  if (!values.requestTitle.trim()) {
+    errors.requestTitle = "Request title is required.";
   }
 
-  if (!values.targetCountry.trim()) {
-    errors.targetCountry = "Target country is required.";
+  if (!values.destinationCountry.trim()) {
+    errors.destinationCountry = "Destination country is required.";
   }
 
-  if (!values.quantity.trim()) {
-    errors.quantity = "Quantity is required.";
+  if (!values.quantityValue.trim()) {
+    errors.quantityValue = "Quantity value is required.";
   }
 
-  if (!values.requirements.trim()) {
-    errors.requirements = "Constraints and requirements are required.";
+  if (!values.quantityUnit.trim()) {
+    errors.quantityUnit = "Quantity unit is required.";
+  }
+
+  if (!values.requestBrief.trim()) {
+    errors.requestBrief = "Request brief is required.";
   }
 
   return errors;

@@ -1,37 +1,68 @@
 import type { Timer } from "../../types/api";
+import { useI18n } from "../../i18n/useI18n";
 
 export function TimerCard({ timer }: { timer: Timer | null }) {
+  const { t, locale } = useI18n();
+
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Timer</h3>
+    <div className="deal-timer-card">
+      <div className="deal-timer-header">
+        <h3 className="deal-timer-title">{t("deals.timer.title")}</h3>
+      </div>
 
       {!timer ? (
-        <p>No timer projection available for this deal.</p>
+        <div className="deal-timer-empty">
+          {t("deals.timer.noProjection")}
+        </div>
       ) : (
-        <div style={{ display: "grid", gap: 8 }}>
-          <Row label="State" value={timer.state || "—"} />
-          <Row label="Started At" value={formatDateTime(timer.started_at)} />
-          <Row label="Expires At" value={formatDateTime(timer.expires_at)} />
-          <Row label="Expired At" value={formatDateTime(timer.expired_at)} />
-          <Row label="Updated At" value={formatDateTime(timer.updated_at)} />
+        <div className="deal-timer-grid">
+          <TimerRow
+            label={t("deals.timer.state")}
+            value={timer.state || t("common.notAvailable")}
+            highlight
+          />
+          <TimerRow
+            label={t("deals.timer.startedAt")}
+            value={formatDateTime(timer.started_at, locale)}
+          />
+          <TimerRow
+            label={t("deals.timer.expiresAt")}
+            value={formatDateTime(timer.expires_at, locale)}
+          />
+          <TimerRow
+            label={t("deals.timer.expiredAt")}
+            value={formatDateTime(timer.expired_at, locale)}
+          />
+          <TimerRow
+            label={t("deals.timer.updatedAt")}
+            value={formatDateTime(timer.updated_at, locale)}
+          />
         </div>
       )}
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function TimerRow({
+  label,
+  value,
+  highlight = false
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div style={{ display: "flex", gap: 12 }}>
-      <strong style={{ minWidth: 140 }}>{label}:</strong>
-      <span>{value}</span>
+    <div className={`deal-timer-row ${highlight ? "deal-timer-row-highlight" : ""}`}>
+      <span className="deal-timer-label">{label}</span>
+      <span className="deal-timer-value">{value}</span>
     </div>
   );
 }
 
-function formatDateTime(value?: string | null) {
+function formatDateTime(value: string | null | undefined, locale: "ar" | "en") {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString();
+  return date.toLocaleString(locale === "ar" ? "ar-EG" : "en-US");
 }

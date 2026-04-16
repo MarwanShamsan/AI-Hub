@@ -5,9 +5,11 @@ import type { Deal, Timer } from "../../types/api";
 import { DealLifecycle } from "../../components/deals/DealLifecycle";
 import { DealTimeline } from "../../components/deals/DealTimeline";
 import { TimerCard } from "../../components/deals/TimerCard";
+import { useI18n } from "../../i18n/useI18n";
 
 export default function DealDetailsPage() {
   const { dealId } = useParams<{ dealId: string }>();
+  const { t, locale } = useI18n();
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [timer, setTimer] = useState<Timer | null>(null);
@@ -19,7 +21,7 @@ export default function DealDetailsPage() {
 
     async function load() {
       if (!dealId) {
-        setError("Missing deal id");
+        setError(t("deals.details.missingDealId"));
         setLoading(false);
         return;
       }
@@ -42,7 +44,7 @@ export default function DealDetailsPage() {
         }
       } catch (e: any) {
         if (!active) return;
-        setError(e.message || "Failed to load deal details");
+        setError(e.message || t("deals.details.failed"));
       } finally {
         if (active) {
           setLoading(false);
@@ -55,73 +57,168 @@ export default function DealDetailsPage() {
     return () => {
       active = false;
     };
-  }, [dealId]);
+  }, [dealId, t]);
 
   if (loading) {
-    return <div>Loading deal details...</div>;
+    return <div className="dashboard-loading">{t("deals.details.loading")}</div>;
   }
 
   if (error) {
     return (
-      <div style={{ display: "grid", gap: 16 }}>
-        <Link to="/app/deals">← Back to deals</Link>
-        <div style={{ padding: 12, border: "1px solid #d33", color: "#d33" }}>
-          {error}
-        </div>
+      <div className="deal-details-page">
+        <Link to="/app/deals" className="deal-details-back-link">
+          {t("common.backToDeals")}
+        </Link>
+        <div className="dashboard-error">{error}</div>
       </div>
     );
   }
 
   if (!deal) {
     return (
-      <div style={{ display: "grid", gap: 16 }}>
-        <Link to="/app/deals">← Back to deals</Link>
-        <div>Deal not found.</div>
+      <div className="deal-details-page">
+        <Link to="/app/deals" className="deal-details-back-link">
+          {t("common.backToDeals")}
+        </Link>
+        <div className="dashboard-empty">{t("deals.details.notFound")}</div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
-      <div style={{ display: "grid", gap: 8 }}>
-        <Link to="/app/deals">← Back to deals</Link>
-        <h1 style={{ margin: 0 }}>{deal.deal_title}</h1>
-        <div>Status: {deal.status}</div>
-        <div>Last Event: {deal.last_event_type}</div>
-        <div>Last Event At: {formatDateTime(deal.last_event_at)}</div>
-        <div>Updated At: {formatDateTime(deal.updated_at)}</div>
-      </div>
+    <div className="deal-details-page">
+      <section className="deal-details-hero">
+        <div className="deal-details-hero-main">
+          <Link to="/app/deals" className="deal-details-back-link">
+            {t("common.backToDeals")}
+          </Link>
 
-      <section style={{ border: "1px solid #ddd", padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Lifecycle</h2>
+          <h1 className="deal-details-title">{deal.deal_title}</h1>
+          <p className="deal-details-subtitle">
+            {t("deals.details.lastEvent")}: {deal.last_event_type}
+          </p>
+        </div>
+
+        <div className="deal-details-status-card">
+          <div className="deal-details-status-row">
+            <span className="deal-details-status-label">
+              {t("deals.details.status")}
+            </span>
+
+            <span
+              className={`deal-badge ${
+                deal.deal_closed
+                  ? "deal-badge-success"
+                  : deal.dispute_open
+                    ? "deal-badge-danger"
+                    : "deal-badge-neutral"
+              }`}
+            >
+              {deal.status}
+            </span>
+          </div>
+
+          <div className="deal-details-meta">
+            <div>
+              <span className="deal-details-meta-label">
+                {t("deals.details.lastEventAt")}
+              </span>
+              <span className="deal-details-meta-value">
+                {formatDateTime(deal.last_event_at, locale)}
+              </span>
+            </div>
+
+            <div>
+              <span className="deal-details-meta-label">
+                {t("deals.details.updatedAt")}
+              </span>
+              <span className="deal-details-meta-value">
+                {formatDateTime(deal.updated_at, locale)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="deal-details-panel">
+        <div className="deal-details-panel-header">
+          <h2 className="deal-details-panel-title">
+            {t("deals.details.lifecycle")}
+          </h2>
+        </div>
         <DealLifecycle deal={deal} />
       </section>
 
-      <section style={{ border: "1px solid #ddd", padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Deal Summary</h2>
-        <SummaryRow label="Deal ID" value={deal.deal_id} />
-        <SummaryRow label="Buyer ID" value={deal.buyer_id} />
-        <SummaryRow label="Supplier ID" value={deal.supplier_id} />
-        <SummaryRow label="Currency" value={deal.currency} />
-        <SummaryRow label="Inspection Passed" value={toYesNo(deal.inspection_passed)} />
-        <SummaryRow label="Shipment Verified" value={toYesNo(deal.shipment_verified)} />
-        <SummaryRow label="Dispute Open" value={toYesNo(deal.dispute_open)} />
-        <SummaryRow label="Deal Closed" value={toYesNo(deal.deal_closed)} />
+      <section className="deal-details-grid">
+        <div className="deal-details-panel">
+          <div className="deal-details-panel-header">
+            <h2 className="deal-details-panel-title">
+              {t("deals.details.summary")}
+            </h2>
+          </div>
+
+          <div className="deal-summary-list">
+            <SummaryRow label={t("deals.details.dealId")} value={deal.deal_id} />
+            <SummaryRow label={t("deals.details.buyerId")} value={deal.buyer_id} />
+            <SummaryRow
+              label={t("deals.details.supplierId")}
+              value={deal.supplier_id}
+            />
+            <SummaryRow
+              label={t("deals.details.currency")}
+              value={deal.currency || "—"}
+            />
+            <SummaryRow
+              label={t("deals.details.inspectionPassed")}
+              value={toYesNo(deal.inspection_passed, t)}
+            />
+            <SummaryRow
+              label={t("deals.details.shipmentVerified")}
+              value={toYesNo(deal.shipment_verified, t)}
+            />
+            <SummaryRow
+              label={t("deals.details.disputeOpen")}
+              value={toYesNo(deal.dispute_open, t)}
+            />
+            <SummaryRow
+              label={t("deals.details.dealClosed")}
+              value={toYesNo(deal.deal_closed, t)}
+            />
+          </div>
+        </div>
+
+        <div className="deal-details-panel">
+          <div className="deal-details-panel-header">
+            <h2 className="deal-details-panel-title">
+              {t("deals.details.tokens")}
+            </h2>
+          </div>
+
+          <div className="deal-summary-list">
+            <SummaryRow
+              label={t("deals.details.tokenAIssued")}
+              value={toYesNo(deal.token_a_issued, t)}
+            />
+            <SummaryRow
+              label={t("deals.details.tokenBIssued")}
+              value={toYesNo(deal.token_b_issued, t)}
+            />
+            <SummaryRow
+              label={t("deals.details.tokenCIssued")}
+              value={toYesNo(deal.token_c_issued, t)}
+            />
+          </div>
+        </div>
       </section>
 
-      <section style={{ border: "1px solid #ddd", padding: 16 }}>
-        <h2 style={{ marginTop: 0 }}>Tokens</h2>
-        <SummaryRow label="Token A Issued" value={toYesNo(deal.token_a_issued)} />
-        <SummaryRow label="Token B Issued" value={toYesNo(deal.token_b_issued)} />
-        <SummaryRow label="Token C Issued" value={toYesNo(deal.token_c_issued)} />
-      </section>
+      <section className="deal-details-grid">
+        <div className="deal-details-panel">
+          <TimerCard timer={timer} />
+        </div>
 
-      <section style={{ border: "1px solid #ddd", padding: 16 }}>
-        <TimerCard timer={timer} />
-      </section>
-
-      <section style={{ border: "1px solid #ddd", padding: 16 }}>
-        <DealTimeline deal={deal} />
+        <div className="deal-details-panel">
+          <DealTimeline deal={deal} />
+        </div>
       </section>
     </div>
   );
@@ -129,20 +226,20 @@ export default function DealDetailsPage() {
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: "flex", gap: 12, padding: "4px 0" }}>
-      <strong style={{ minWidth: 180 }}>{label}:</strong>
-      <span>{value}</span>
+    <div className="deal-summary-row">
+      <span className="deal-summary-label">{label}</span>
+      <span className="deal-summary-value">{value}</span>
     </div>
   );
 }
 
-function toYesNo(value: boolean) {
-  return value ? "Yes" : "No";
+function toYesNo(value: boolean, t: (key: string) => string) {
+  return value ? t("common.yes") : t("common.no");
 }
 
-function formatDateTime(value?: string | null) {
+function formatDateTime(value: string | null | undefined, locale: "ar" | "en") {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString();
+  return date.toLocaleString(locale === "ar" ? "ar-EG" : "en-US");
 }

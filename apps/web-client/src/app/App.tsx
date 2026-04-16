@@ -7,9 +7,11 @@ import {
 } from "../lib/storage";
 import { authApi } from "../features/auth/api";
 import { AuthUser } from "../features/auth/types";
+import { useI18n } from "../i18n/useI18n";
 
 export default function App() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [bootstrapping, setBootstrapping] = useState(true);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function App() {
   }, [navigate]);
 
   if (bootstrapping) {
-    return <div style={{ padding: "24px" }}>Loading...</div>;
+    return <div style={{ padding: "24px" }}>{t("common.loading")}</div>;
   }
 
   return <Outlet />;

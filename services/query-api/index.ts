@@ -7,7 +7,7 @@ import { DealRegistryRepo } from "../event-ledger/repo/DealRegistryRepo";
 import { runMaterializerLoop } from "./materializers/runMaterializer";
 
 dotenv.config({
-  path: path.resolve(process.cwd(), ".env")
+  path: path.resolve(process.cwd(), "services/query-api/.env")
 });
 
 async function main() {

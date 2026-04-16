@@ -6,20 +6,32 @@ import {
   hasRequestFormErrors,
   validateRequestForm
 } from "../../features/requests/validation";
+import { useI18n } from "../../i18n/useI18n";
+import { requestClient } from "../../services/request-client";
 
 const INITIAL_VALUES: RequestFormValues = {
-  productName: "",
-  targetCountry: "",
-  quantity: "",
-  requirements: ""
+  requestTitle: "",
+  destinationCountry: "",
+  quantityValue: "",
+  quantityUnit: "",
+  requestBrief: "",
+  preferredSupplierCountry: "",
+  certificationsRequired: "",
+  packagingRequirements: "",
+  shippingPreference: "",
+  budgetRange: "",
+  targetDeliveryTimeline: ""
 };
 
 export default function NewRequestPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [values, setValues] = useState<RequestFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<RequestFormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showMoreDetails, setShowMoreDetails] = useState(false);
 
   function updateField<K extends keyof RequestFormValues>(
     key: K,
@@ -39,9 +51,13 @@ export default function NewRequestPage() {
       delete next[key];
       return next;
     });
+
+    if (submitError) {
+      setSubmitError(null);
+    }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextErrors = validateRequestForm(values);
@@ -53,17 +69,17 @@ export default function NewRequestPage() {
 
     try {
       setSubmitting(true);
+      setSubmitError(null);
+
+      const result = await requestClient.createRequest(values);
 
       navigate("/app/requests/success", {
         state: {
-          requestDraft: {
-            productName: values.productName.trim(),
-            targetCountry: values.targetCountry.trim(),
-            quantity: values.quantity.trim(),
-            requirements: values.requirements.trim()
-          }
+          request: result.request
         }
       });
+    } catch (error: any) {
+      setSubmitError(error?.message || t("requests.new.submitFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -71,60 +87,195 @@ export default function NewRequestPage() {
 
   return (
     <PageSection
-      title="New Sourcing Request"
-      description="Create a new sourcing request for AI supplier discovery."
+      title={t("requests.new.title")}
+      description={t("requests.new.description")}
     >
-      <form className="stack-md" onSubmit={handleSubmit}>
-        <div className="stack-sm">
-          <input
-            className="input"
-            placeholder="Product name"
-            value={values.productName}
-            onChange={(event) => updateField("productName", event.target.value)}
-          />
-          {errors.productName ? (
-            <p className="error-text">{errors.productName}</p>
-          ) : null}
-        </div>
+      <form className="request-form" onSubmit={handleSubmit}>
+        <section className="request-form-section">
+          <div className="request-form-section-header">
+            <h3 className="request-form-section-title">
+              {t("requests.new.sectionBasic")}
+            </h3>
+            <p className="request-form-section-text">
+              {t("requests.new.sectionBasicDescription")}
+            </p>
+          </div>
 
-        <div className="stack-sm">
-          <input
-            className="input"
-            placeholder="Target country"
-            value={values.targetCountry}
-            onChange={(event) => updateField("targetCountry", event.target.value)}
-          />
-          {errors.targetCountry ? (
-            <p className="error-text">{errors.targetCountry}</p>
-          ) : null}
-        </div>
+          <div className="stack-md">
+            <div className="stack-sm">
+              <input
+                className="input"
+                placeholder={t("requests.new.requestTitle")}
+                value={values.requestTitle}
+                onChange={(event) => updateField("requestTitle", event.target.value)}
+              />
+              {errors.requestTitle ? (
+                <p className="error-text">{errors.requestTitle}</p>
+              ) : null}
+            </div>
 
-        <div className="stack-sm">
-          <input
-            className="input"
-            placeholder="Quantity"
-            value={values.quantity}
-            onChange={(event) => updateField("quantity", event.target.value)}
-          />
-          {errors.quantity ? (
-            <p className="error-text">{errors.quantity}</p>
-          ) : null}
-        </div>
+            <div className="stack-sm">
+              <input
+                className="input"
+                placeholder={t("requests.new.destinationCountry")}
+                value={values.destinationCountry}
+                onChange={(event) =>
+                  updateField("destinationCountry", event.target.value)
+                }
+              />
+              {errors.destinationCountry ? (
+                <p className="error-text">{errors.destinationCountry}</p>
+              ) : null}
+            </div>
 
-        <div className="stack-sm">
-          <textarea
-            className="textarea"
-            placeholder="Constraints and requirements"
-            value={values.requirements}
-            onChange={(event) => updateField("requirements", event.target.value)}
-          />
-          {errors.requirements ? (
-            <p className="error-text">{errors.requirements}</p>
+            <div className="request-form-grid-2">
+              <div className="stack-sm">
+                <input
+                  className="input"
+                  placeholder={t("requests.new.quantityValue")}
+                  value={values.quantityValue}
+                  onChange={(event) =>
+                    updateField("quantityValue", event.target.value)
+                  }
+                />
+                {errors.quantityValue ? (
+                  <p className="error-text">{errors.quantityValue}</p>
+                ) : null}
+              </div>
+
+              <div className="stack-sm">
+                <input
+                  className="input"
+                  placeholder={t("requests.new.quantityUnit")}
+                  value={values.quantityUnit}
+                  onChange={(event) =>
+                    updateField("quantityUnit", event.target.value)
+                  }
+                />
+                {errors.quantityUnit ? (
+                  <p className="error-text">{errors.quantityUnit}</p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="stack-sm">
+              <textarea
+                className="textarea"
+                placeholder={t("requests.new.requestBrief")}
+                value={values.requestBrief}
+                onChange={(event) =>
+                  updateField("requestBrief", event.target.value)
+                }
+              />
+              {errors.requestBrief ? (
+                <p className="error-text">{errors.requestBrief}</p>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        <section className="request-form-section">
+          <div className="request-form-more-header">
+            <div>
+              <h3 className="request-form-section-title">
+                {t("requests.new.sectionMore")}
+              </h3>
+              <p className="request-form-section-text">
+                {t("requests.new.sectionMoreDescription")}
+              </p>
+            </div>
+
+            <button
+              className="request-toggle-button"
+              type="button"
+              onClick={() => setShowMoreDetails((prev) => !prev)}
+            >
+              {showMoreDetails
+                ? t("requests.new.hideMoreDetails")
+                : t("requests.new.showMoreDetails")}
+            </button>
+          </div>
+
+          {showMoreDetails ? (
+            <div className="stack-md">
+              <input
+                className="input"
+                placeholder={t("requests.new.preferredSupplierCountry")}
+                value={values.preferredSupplierCountry}
+                onChange={(event) =>
+                  updateField("preferredSupplierCountry", event.target.value)
+                }
+              />
+
+              <input
+                className="input"
+                placeholder={t("requests.new.certificationsRequired")}
+                value={values.certificationsRequired}
+                onChange={(event) =>
+                  updateField("certificationsRequired", event.target.value)
+                }
+              />
+
+              <input
+                className="input"
+                placeholder={t("requests.new.packagingRequirements")}
+                value={values.packagingRequirements}
+                onChange={(event) =>
+                  updateField("packagingRequirements", event.target.value)
+                }
+              />
+
+              <input
+                className="input"
+                placeholder={t("requests.new.shippingPreference")}
+                value={values.shippingPreference}
+                onChange={(event) =>
+                  updateField("shippingPreference", event.target.value)
+                }
+              />
+
+              <input
+                className="input"
+                placeholder={t("requests.new.budgetRange")}
+                value={values.budgetRange}
+                onChange={(event) =>
+                  updateField("budgetRange", event.target.value)
+                }
+              />
+
+              <input
+                className="input"
+                placeholder={t("requests.new.targetDeliveryTimeline")}
+                value={values.targetDeliveryTimeline}
+                onChange={(event) =>
+                  updateField("targetDeliveryTimeline", event.target.value)
+                }
+              />
+            </div>
           ) : null}
-        </div>
+        </section>
+
+        <section className="request-form-section">
+          <div className="request-form-section-header">
+            <h3 className="request-form-section-title">
+              {t("requests.new.sectionAttachments")}
+            </h3>
+            <p className="request-form-section-text">
+              {t("requests.new.sectionAttachmentsDescription")}
+            </p>
+          </div>
+
+          <div className="request-upload-placeholder">
+            {t("requests.new.attachmentsPlaceholder")}
+          </div>
+        </section>
+
+        {submitError ? (
+          <div className="dashboard-error">{submitError}</div>
+        ) : null}
 
         <button className="button" type="submit" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Request"}
+          {submitting ? t("requests.new.submitting") : t("requests.new.submit")}
         </button>
       </form>
     </PageSection>

@@ -21,6 +21,9 @@ import DisputeDetailsPage from "../pages/disputes/DisputeDetailsPage";
 import CertificatesPage from "../pages/certificates/CertificatesPage";
 import NotFoundPage from "../pages/errors/NotFoundPage";
 import UnauthorizedPage from "../pages/errors/UnauthorizedPage";
+import RequestsListPage from "../pages/requests/RequestsListPage";
+import RequestDetailsPage from "../pages/requests/RequestDetailsPage";
+import RequestExtractionReviewPage from "../pages/requests/RequestExtractionReviewPage";
 
 export const router = createBrowserRouter([
   {
@@ -48,7 +51,10 @@ export const router = createBrowserRouter([
             element: <DashboardLayout />,
             children: [
               { index: true, element: <DashboardPage /> },
+              { path: "requests", element: <RequestsListPage /> },
               { path: "requests/new", element: <NewRequestPage /> },
+              { path: "requests/:requestId", element: <RequestDetailsPage /> },
+              { path: "requests/:requestId/review", element: <RequestExtractionReviewPage /> },
               { path: "requests/success", element: <RequestSuccessPage /> },
               { path: "discovery", element: <SupplierDiscoveryPage /> },
               { path: "discovery/shortlist", element: <SupplierShortlistPage /> },

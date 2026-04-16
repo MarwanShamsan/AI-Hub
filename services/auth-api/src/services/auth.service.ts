@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { randomUUID } from "node:crypto";
 import { v4 as uuidv4 } from "uuid";
 import {
   createUser,
@@ -36,6 +37,15 @@ function buildRefreshExpiry(days = 7): string {
   return date.toISOString();
 }
 
+function buildRefreshPayload(
+  payload: AuthJwtPayload
+): AuthJwtPayload & { jti: string } {
+  return {
+    ...payload,
+    jti: randomUUID()
+  };
+}
+
 async function buildUserPayload(
   userId: string
 ): Promise<(AuthJwtPayload & { email: string }) | null> {
@@ -70,7 +80,7 @@ async function issueTokens(params: {
   }
 
   const accessToken = await signAccessToken(payload);
-  const refreshToken = await signRefreshToken(payload);
+  const refreshToken = await signRefreshToken(buildRefreshPayload(payload));
 
   await insertRefreshToken({
     id: uuidv4(),
@@ -222,7 +232,7 @@ export async function refresh(params: {
   await revokeRefreshToken(stored.id);
 
   const newAccessToken = await signAccessToken(payload);
-  const newRefreshToken = await signRefreshToken(payload);
+  const newRefreshToken = await signRefreshToken(buildRefreshPayload(payload));
 
   await insertRefreshToken({
     id: uuidv4(),

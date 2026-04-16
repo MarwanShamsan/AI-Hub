@@ -7,7 +7,17 @@ const app = express();
 
 app.use(
   cors({
-    origin: env.corsOrigin,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (env.corsOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: false
   })
 );

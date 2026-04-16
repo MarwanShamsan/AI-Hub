@@ -1,12 +1,15 @@
 ﻿import PageSection from "../../components/common/PageSection";
+import { useI18n } from "../../i18n/useI18n";
 
 export default function DisputesPage() {
+  const { t } = useI18n();
+
   return (
     <PageSection
-      title="Disputes"
-      description="Track open disputes and previous dispute outcomes."
+      title={t("disputes.title")}
+      description={t("disputes.description")}
     >
-      <div className="card">No disputes yet.</div>
+      <div className="card">{t("disputes.empty")}</div>
     </PageSection>
   );
 }

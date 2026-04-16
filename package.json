@@ -3,23 +3,25 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "scripts": {
-    "dev:command-api": "ts-node-dev --respawn --transpile-only services/command-api/index.ts",
-    "build": "tsc",
-    "start:command-api": "node dist/services/command-api/index.js",
-    "dev:query-api": "ts-node-dev --respawn --transpile-only services/query-api/index.ts",
-    "dev:engine": "ts-node-dev --respawn --transpile-only services/engine-runner/index.ts",
-    "dev:all": "concurrently -n command,query,engine \"npm run dev:command-api\" \"npm run dev:query-api\" \"npm run dev:engine\"",
-    "db:migrate": "node -r ts-node/register/transpile-only services/engine-runner/migrate.ts",
-    "test:dispute": "node --test -r ts-node/register/transpile-only tests/integration/dispute.e2e.test.ts",
-    "verify:hash-chain:all": "node -r ts-node/register/transpile-only scripts/verify-hash-chain.ts --all",
-    "verify:hash-chain:deal": "node -r ts-node/register/transpile-only scripts/verify-hash-chain.ts",
-    "test:hash-chain": "node --test -r ts-node/register/transpile-only tests/audit/hashChainVerifier.test.ts",
-    "verify:audit-report": "node -r ts-node/register/transpile-only scripts/verify-audit-report.ts",
-    "test:audit-report": "node --test -r ts-node/register/transpile-only tests/audit/reportIntegrityVerifier.test.ts",
-    "test:migrations": "node --test -r ts-node/register/transpile-only tests/engine-runner/migrate.smoke.test.ts",
-    "ci:audit": "npm run test:hash-chain && npm run test:audit-report && npm run verify:hash-chain:all"
-  },
+"scripts": {
+  "dev:command-api": "ts-node-dev --respawn --transpile-only services/command-api/index.ts",
+  "dev:request-api": "ts-node-dev --respawn --transpile-only services/request-api/index.ts",
+  "build": "tsc",
+  "start:command-api": "node dist/services/command-api/index.js",
+  "start:request-api": "node dist/services/request-api/index.js",
+  "dev:query-api": "ts-node-dev --respawn --transpile-only services/query-api/index.ts",
+  "dev:engine": "ts-node-dev --respawn --transpile-only services/engine-runner/index.ts",
+  "dev:all": "concurrently -n request,command,query,engine \"npm run dev:request-api\" \"npm run dev:command-api\" \"npm run dev:query-api\" \"npm run dev:engine\"",
+  "db:migrate": "node -r ts-node/register/transpile-only services/engine-runner/migrate.ts",
+  "test:dispute": "node --test -r ts-node/register/transpile-only tests/integration/dispute.e2e.test.ts",
+  "verify:hash-chain:all": "node -r ts-node/register/transpile-only scripts/verify-hash-chain.ts --all",
+  "verify:hash-chain:deal": "node -r ts-node/register/transpile-only scripts/verify-hash-chain.ts",
+  "test:hash-chain": "node --test -r ts-node/register/transpile-only tests/audit/hashChainVerifier.test.ts",
+  "verify:audit-report": "node -r ts-node/register/transpile-only scripts/verify-audit-report.ts",
+  "test:audit-report": "node --test -r ts-node/register/transpile-only tests/audit/reportIntegrityVerifier.test.ts",
+  "test:migrations": "node --test -r ts-node/register/transpile-only tests/engine-runner/migrate.smoke.test.ts",
+  "ci:audit": "npm run test:hash-chain && npm run test:audit-report && npm run verify:hash-chain:all"
+},
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^25.2.2",
@@ -31,12 +33,14 @@
   },
   "dependencies": {
     "@fastify/cors": "^8.5.0",
+    "@fastify/multipart": "^8.3.1",
     "dotenv": "^17.2.4",
     "fastify": "^4.29.1",
     "jose": "^6.1.3",
     "pg": "^8.18.0",
     "pino": "^10.3.1",
     "yaml": "^2.8.2",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "pdf-parse": "^1.1.1"
   }
 }

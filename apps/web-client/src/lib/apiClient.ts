@@ -15,6 +15,9 @@ const COMMAND_API_URL =
 const QUERY_API_URL =
   import.meta.env.VITE_QUERY_API_URL || "http://localhost:3002";
 
+const REQUEST_API_URL =
+  import.meta.env.VITE_REQUEST_API_URL || "http://localhost:3003";
+
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 type RequestOptions = {
@@ -75,9 +78,11 @@ async function request<T>(
 ): Promise<T> {
   const token = getAccessToken();
 
-  const headers: HeadersInit = {
-    "Content-Type": "application/json"
-  };
+const headers: HeadersInit = {};
+
+  if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token && !isAuthPath(path)) {
     headers["Authorization"] = `Bearer ${token}`;
@@ -86,7 +91,7 @@ async function request<T>(
   const response = await fetch(`${baseUrl}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined
+    body: body !== undefined ? JSON.stringify(body) : undefined
   });
 
   const shouldTryRefresh =
@@ -140,5 +145,17 @@ export const apiClient = {
     request<T>(QUERY_API_URL, "GET", path),
 
   queryPost: <T>(path: string, body?: unknown) =>
-    request<T>(QUERY_API_URL, "POST", path, body)
+    request<T>(QUERY_API_URL, "POST", path, body),
+
+  requestGet: <T>(path: string) =>
+    request<T>(REQUEST_API_URL, "GET", path),
+
+  requestPost: <T>(path: string, body?: unknown) =>
+    request<T>(REQUEST_API_URL, "POST", path, body),
+
+  requestPut: <T>(path: string, body?: unknown) =>
+    request<T>(REQUEST_API_URL, "PUT", path, body),
+
+  requestDelete: <T>(path: string) =>
+    request<T>(REQUEST_API_URL, "DELETE", path)
 };

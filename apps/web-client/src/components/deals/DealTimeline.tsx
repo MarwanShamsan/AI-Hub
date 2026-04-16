@@ -1,27 +1,81 @@
 import type { Deal } from "../../types/api";
+import { useI18n } from "../../i18n/useI18n";
 
 export function DealTimeline({ deal }: { deal: Deal }) {
+  const { t } = useI18n();
+
   const items = [
-    "DEAL_CREATED",
-    deal.inspection_passed ? "INSPECTION_PASSED" : null,
-    deal.token_a_issued ? "TOKEN_A_ISSUED" : null,
-    deal.shipment_verified ? "SHIPMENT_VERIFIED" : null,
-    deal.token_b_issued ? "TOKEN_B_ISSUED" : null,
-    deal.timer_started ? "TIMER_STARTED" : null,
-    deal.timer_expired ? "TIMER_EXPIRED" : null,
-    deal.dispute_open ? "DISPUTE_OPENED" : null,
-    deal.token_c_issued ? "TOKEN_C_ISSUED" : null,
-    deal.deal_closed ? "DEAL_CLOSED" : null
-  ].filter(Boolean) as string[];
+    { key: "DEAL_CREATED", label: t("deals.timeline.dealCreated"), show: true },
+    {
+      key: "INSPECTION_PASSED",
+      label: t("deals.timeline.inspectionPassed"),
+      show: deal.inspection_passed
+    },
+    {
+      key: "TOKEN_A_ISSUED",
+      label: t("deals.timeline.tokenAIssued"),
+      show: deal.token_a_issued
+    },
+    {
+      key: "SHIPMENT_VERIFIED",
+      label: t("deals.timeline.shipmentVerified"),
+      show: deal.shipment_verified
+    },
+    {
+      key: "TOKEN_B_ISSUED",
+      label: t("deals.timeline.tokenBIssued"),
+      show: deal.token_b_issued
+    },
+    {
+      key: "TIMER_STARTED",
+      label: t("deals.timeline.timerStarted"),
+      show: deal.timer_started
+    },
+    {
+      key: "TIMER_EXPIRED",
+      label: t("deals.timeline.timerExpired"),
+      show: deal.timer_expired
+    },
+    {
+      key: "DISPUTE_OPENED",
+      label: t("deals.timeline.disputeOpened"),
+      show: deal.dispute_open
+    },
+    {
+      key: "TOKEN_C_ISSUED",
+      label: t("deals.timeline.tokenCIssued"),
+      show: deal.token_c_issued
+    },
+    {
+      key: "DEAL_CLOSED",
+      label: t("deals.timeline.dealClosed"),
+      show: deal.deal_closed
+    }
+  ].filter((item) => item.show);
 
   return (
-    <div>
-      <h3 style={{ marginTop: 0 }}>Derived Timeline</h3>
-      <ul style={{ marginBottom: 0 }}>
-        {items.map((item) => (
-          <li key={item}>{item}</li>
+    <div className="deal-timeline">
+      <div className="deal-timeline-header">
+        <h3 className="deal-timeline-title">{t("deals.timeline.title")}</h3>
+      </div>
+
+      <div className="deal-timeline-list">
+        {items.map((item, index) => (
+          <div key={item.key} className="deal-timeline-item">
+            <div className="deal-timeline-marker-wrap">
+              <div className="deal-timeline-marker">{index + 1}</div>
+              {index < items.length - 1 ? (
+                <div className="deal-timeline-connector" />
+              ) : null}
+            </div>
+
+            <div className="deal-timeline-card">
+              <div className="deal-timeline-item-title">{item.label}</div>
+              <div className="deal-timeline-item-code">{item.key}</div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

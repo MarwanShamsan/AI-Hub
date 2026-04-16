@@ -36,5 +36,9 @@ export const env = {
 
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN ?? "15m",
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN ?? "7d",
-  corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:5173"
+
+  corsOrigins: (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
 };
