@@ -8,7 +8,7 @@
   "dev:request-api": "ts-node-dev --respawn --transpile-only services/request-api/index.ts",
   "build": "tsc",
   "start:command-api": "node dist/services/command-api/index.js",
-  "start:request-api": "node dist/services/request-api/index.js",
+  "start:request-api": "node dist/request-api/request-api/index.js",
   "dev:query-api": "ts-node-dev --respawn --transpile-only services/query-api/index.ts",
   "build:request-api": "tsc -p services/request-api/tsconfig.json",
   "dev:engine": "ts-node-dev --respawn --transpile-only services/engine-runner/index.ts",
