@@ -3,33 +3,68 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 
 export async function buildServer() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({
+    logger: true
+  });
 
-  const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175"
-  ];
+  const allowedOrigins = (
+    process.env.CORS_ORIGIN ??
+    "http://localhost:5173,http://localhost:5174,http://localhost:5175"
+  )
+    .split(",")
+    .map((origin) =>
+      origin.trim().replace(/\/+$/, "")
+    )
+    .filter(Boolean);
 
-  console.log("[request-api] allowedOrigins =", allowedOrigins);
+  app.log.info(
+    {
+      allowedOrigins
+    },
+    "Request API CORS origins configured"
+  );
 
   await app.register(cors, {
-    origin: (origin, cb) => {
+    origin: (origin, callback) => {
       if (!origin) {
-        cb(null, true);
+        callback(null, true);
         return;
       }
 
-      if (allowedOrigins.includes(origin)) {
-        cb(null, true);
+      const normalizedOrigin =
+        origin.replace(/\/+$/, "");
+
+      if (
+        allowedOrigins.includes(
+          normalizedOrigin
+        )
+      ) {
+        callback(null, true);
         return;
       }
 
-      cb(new Error(`CORS blocked for origin: ${origin}`), false);
+      callback(
+        new Error(
+          `CORS blocked for origin: ${origin}`
+        ),
+        false
+      );
     },
+
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS"
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization"
+    ]
   });
 
   await app.register(multipart, {
