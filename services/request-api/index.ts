@@ -83,6 +83,14 @@ async function main(): Promise<void> {
     supplierQualificationService
   });
 
+
+  app.get("/health", async (_request, reply) => {
+    return reply.code(200).send({
+      status: "ok",
+      service: "request-api"
+    });
+  });
+  
   await app.listen({
     port,
     host: "0.0.0.0"
