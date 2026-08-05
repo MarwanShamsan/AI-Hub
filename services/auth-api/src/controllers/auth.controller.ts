@@ -1,117 +1,239 @@
-import { Request, Response } from "express";
+import {
+  type NextFunction,
+  type Request,
+  type Response
+} from "express";
+import {
+  type AuthenticatedRequest
+} from "../middleware/auth.middleware";
 import * as authService from "../services/auth.service";
+import {
+  parseLoginInput,
+  parseRefreshInput,
+  parseRegisterInput,
+  parseResendEmailVerificationInput,
+  parseVerifyEmailInput,
+  parseConfirmPasswordResetInput,
+  parseRequestPasswordResetInput,
+} from "../validators/auth.schemas";
+import { AuthError } from "../errors/auth.error";
 
-function getIpAddress(req: Request): string | null {
-  return req.ip ?? null;
+function getIpAddress(
+  request: Request
+): string | null {
+  return request.ip || null;
 }
 
-function getUserAgent(req: Request): string | null {
-  const userAgent = req.headers["user-agent"];
-  return typeof userAgent === "string" ? userAgent : null;
+function getUserAgent(
+  request: Request
+): string | null {
+  const userAgent =
+    request.headers["user-agent"];
+
+  return typeof userAgent === "string"
+    ? userAgent
+    : null;
 }
 
-export async function register(req: Request, res: Response): Promise<void> {
+export async function register(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
   try {
-    const { email, password, role } = req.body as {
-      email?: string;
-      password?: string;
-      role?: "client" | "supplier";
-    };
-
-    if (!email || !password || !role) {
-      res.status(400).json({ error: "email, password, and role are required" });
-      return;
-    }
-
-    if (!["client", "supplier"].includes(role)) {
-      res.status(400).json({ error: "Only client or supplier role is allowed" });
-      return;
-    }
+    const input = parseRegisterInput(
+      request.body
+    );
 
     const result = await authService.register({
-      email,
-      password,
-      role,
-      userAgent: getUserAgent(req),
-      ipAddress: getIpAddress(req)
+      ...input,
+      userAgent: getUserAgent(request),
+      ipAddress: getIpAddress(request)
     });
 
-    res.status(201).json(result);
+    response.status(201).json(result);
   } catch (error) {
-    console.error("REGISTER_ERROR", error);
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Register failed"
-    });
+    next(error);
   }
 }
 
-export async function login(req: Request, res: Response): Promise<void> {
+export async function login(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
   try {
-    const { email, password } = req.body as {
-      email?: string;
-      password?: string;
-    };
-
-    if (!email || !password) {
-      res.status(400).json({ error: "email and password are required" });
-      return;
-    }
+    const input = parseLoginInput(
+      request.body
+    );
 
     const result = await authService.login({
-      email,
-      password,
-      userAgent: getUserAgent(req),
-      ipAddress: getIpAddress(req)
+      ...input,
+      userAgent: getUserAgent(request),
+      ipAddress: getIpAddress(request)
     });
 
-    res.status(200).json(result);
+    response.status(200).json(result);
   } catch (error) {
-    console.error("LOGIN_ERROR", error);
-    res.status(401).json({
-      error: error instanceof Error ? error.message : "Login failed"
-    });
+    next(error);
   }
 }
 
-export async function refresh(req: Request, res: Response): Promise<void> {
+export async function refresh(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
   try {
-    const { refresh_token } = req.body as {
-      refresh_token?: string;
-    };
-
-    if (!refresh_token) {
-      res.status(400).json({ error: "refresh_token is required" });
-      return;
-    }
+    const input = parseRefreshInput(
+      request.body
+    );
 
     const result = await authService.refresh({
-      refreshToken: refresh_token,
-      userAgent: getUserAgent(req),
-      ipAddress: getIpAddress(req)
+      refreshToken:
+        input.refresh_token,
+      userAgent: getUserAgent(request),
+      ipAddress: getIpAddress(request)
     });
 
-    res.status(200).json(result);
+    response.status(200).json(result);
   } catch (error) {
-    console.error("REFRESH_ERROR", error);
-    res.status(401).json({
-      error: error instanceof Error ? error.message : "Refresh failed"
-    });
+    next(error);
   }
 }
 
-export async function me(req: Request, res: Response): Promise<void> {
+export async function verifyEmail(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
   try {
-    const userId = (req as Request & { auth?: { sub: string } }).auth?.sub;
+    const input = parseVerifyEmailInput(
+      request.body
+    );
+
+    const result =
+      await authService.verifyEmail(
+        input
+      );
+
+    response.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resendEmailVerification(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const input =
+      parseResendEmailVerificationInput(
+        request.body
+      );
+
+    const result =
+      await authService.resendEmailVerification(
+        {
+          ...input,
+          userAgent:
+            getUserAgent(request),
+          ipAddress:
+            getIpAddress(request)
+        }
+      );
+
+    response.status(202).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function requestPasswordReset(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const input =
+      parseRequestPasswordResetInput(
+        request.body
+      );
+
+    const result =
+      await authService.requestPasswordReset(
+        {
+          ...input,
+
+          userAgent:
+            getUserAgent(request),
+
+          ipAddress:
+            getIpAddress(request)
+        }
+      );
+
+    response.status(202).json(
+      result
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function confirmPasswordReset(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const input =
+      parseConfirmPasswordResetInput(
+        request.body
+      );
+
+    const result =
+      await authService.confirmPasswordReset(
+        {
+          ...input,
+
+          userAgent:
+            getUserAgent(request),
+
+          ipAddress:
+            getIpAddress(request)
+        }
+      );
+
+    response.status(200).json(
+      result
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function me(
+  request: AuthenticatedRequest,
+  response: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = request.auth?.sub;
+
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+      throw new AuthError(
+        "UNAUTHORIZED"
+      );
     }
 
-    const result = await authService.me(userId);
-    res.status(200).json(result);
+    const result =
+      await authService.me(userId);
+
+    response.status(200).json(result);
   } catch (error) {
-    res.status(404).json({
-      error: error instanceof Error ? error.message : "User not found"
-    });
+    next(error);
   }
 }

@@ -28,6 +28,13 @@ export async function requestsRoute(app: FastifyInstance, opts: Deps) {
           reason: "REQUEST_CREATION_REQUIRES_USER"
         });
       }
+
+      if (identity.role !== "client") {
+        return reply.status(403).send({
+          status: "REJECTED",
+          reason: "REQUEST_CREATION_REQUIRES_CLIENT_ROLE"
+        });
+      }
     } catch (e: any) {
       return reply.status(401).send({
         status: "REJECTED",
@@ -142,6 +149,13 @@ export async function requestsRoute(app: FastifyInstance, opts: Deps) {
         return reply.status(403).send({
           status: "REJECTED",
           reason: "REQUEST_UPDATE_REQUIRES_USER"
+        });
+      }
+
+      if (identity.role !== "client") {
+        return reply.status(403).send({
+          status: "REJECTED",
+          reason: "REQUEST_UPDATE_REQUIRES_CLIENT_ROLE"
         });
       }
     } catch (e: any) {

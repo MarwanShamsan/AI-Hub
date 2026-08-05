@@ -18,34 +18,126 @@ export const en: Messages = {
   "layout.nav.certificates": "Certificates",
   "layout.nav.myRequests": "My Requests",
 
-  "auth.login.title": "Login",
-  "auth.login.subtitle": "Client portal access for AI Hub.",
-  "auth.login.emailRequired": "Email is required.",
-  "auth.login.passwordRequired": "Password is required.",
-  "auth.login.failed": "Failed to sign in.",
-  "auth.login.emailPlaceholder": "Email",
-  "auth.login.passwordPlaceholder": "Password",
-  "auth.login.submit": "Sign In",
-  "auth.login.submitting": "Signing In...",
-  "auth.login.forgotPassword": "Forgot password?",
-  "auth.login.newHere": "New here?",
-  "auth.login.createAccount": "Create a client account",
+    "auth.login.title": "Sign in",
+    "auth.login.subtitle":
+      "Access your AI Hub client workspace.",
+    "auth.login.identifier":
+      "Username or email",
+    "auth.login.identifierRequired":
+      "Username or email is required.",
+    "auth.login.identifierPlaceholder":
+      "Enter your username or email",
+    "auth.login.password": "Password",
+    "auth.login.passwordRequired":
+      "Password is required.",
+    "auth.login.passwordPlaceholder":
+      "Enter your password",
+    "auth.login.failed":
+      "Unable to sign in.",
+    "auth.login.submit": "Sign in",
+    "auth.login.submitting":
+      "Signing in...",
+    "auth.login.forgotPassword":
+      "Forgot password?",
+    "auth.login.newHere":
+      "New to AI Hub?",
+    "auth.login.createAccount":
+      "Create a client account",
+    "auth.login.verificationEmail":
+      "Verification email",
+    "auth.login.verificationEmailRequired":
+      "Enter the email address used to create the account.",
+    "auth.login.verificationEmailPlaceholder":
+      "Enter your email address",
+    "auth.login.resendVerification":
+      "Resend verification email",
+    "auth.login.resendingVerification":
+      "Sending verification email...",
+    "auth.login.verificationSent":
+      "If the account is eligible, a verification email has been sent.",
+    "auth.login.resendFailed":
+      "Unable to resend the verification email.",
 
-  "auth.register.title": "Create Client Account",
-  "auth.register.subtitle":
-    "Create a client account to access sourcing requests and deal tracking.",
-  "auth.register.emailRequired": "Email is required.",
-  "auth.register.passwordRequired": "Password is required.",
-  "auth.register.passwordMin": "Password must be at least 6 characters.",
-  "auth.register.passwordMismatch": "Passwords do not match.",
-  "auth.register.failed": "Failed to create account.",
-  "auth.register.emailPlaceholder": "Email",
-  "auth.register.passwordPlaceholder": "Password",
-  "auth.register.confirmPasswordPlaceholder": "Confirm Password",
-  "auth.register.submit": "Create Client Account",
-  "auth.register.submitting": "Creating Account...",
-  "auth.register.haveAccount": "Already have an account?",
-  "auth.register.signIn": "Sign in",
+    "auth.register.title":
+      "Create Client Account",
+    "auth.register.subtitle":
+      "Create a client account to access sourcing requests and deal tracking.",
+    "auth.register.username":
+      "Username",
+    "auth.register.usernameRequired":
+      "Username is required.",
+    "auth.register.usernameInvalid":
+      "Use 3–32 lowercase letters, numbers, dots, underscores, or hyphens.",
+    "auth.register.usernamePlaceholder":
+      "Choose a username",
+    "auth.register.email": "Email",
+    "auth.register.emailRequired":
+      "Email is required.",
+    "auth.register.password":
+      "Password",
+    "auth.register.passwordRequired":
+      "Password is required.",
+    "auth.register.passwordPolicy":
+      "Password must contain 8–128 characters, including at least one letter and one number.",
+    "auth.register.passwordMismatch":
+      "Passwords do not match.",
+    "auth.register.failed":
+      "Unable to create the account.",
+    "auth.register.emailPlaceholder":
+      "Enter your email address",
+    "auth.register.passwordPlaceholder":
+      "Create a password",
+    "auth.register.confirmPassword":
+      "Confirm password",
+    "auth.register.confirmPasswordPlaceholder":
+      "Enter the password again",
+    "auth.register.submit":
+      "Create Client Account",
+    "auth.register.submitting":
+      "Creating account...",
+    "auth.register.haveAccount":
+      "Already have an account?",
+    "auth.register.signIn":
+      "Sign in",
+    "auth.register.pendingTitle":
+      "Verify your email",
+    "auth.register.pendingDescription":
+      "We sent a verification link to the email address below. Open it before signing in.",
+    "auth.register.returnToLogin":
+      "Return to sign in",
+
+    "auth.errors.emailNotVerified":
+      "Verify your email address before signing in.",
+    "auth.errors.emailAlreadyVerified":
+      "This email address is already verified.",
+    "auth.errors.verificationTokenInvalid":
+      "The verification link is invalid.",
+    "auth.errors.verificationTokenExpired":
+      "The verification link has expired.",
+    "auth.errors.verificationTokenConsumed":
+      "This verification link has already been used.",
+    "auth.errors.resendRateLimited":
+      "Too many verification requests. Try again later.",
+    "auth.errors.invalidCredentials":
+      "The username/email or password is incorrect.",
+    "auth.errors.roleMismatch":
+      "This account is not a client account.",
+    "auth.errors.usernameAlreadyExists":
+      "This username is already in use.",
+    "auth.errors.emailAlreadyExists":
+      "This email address is already registered.",
+    "auth.errors.invalidRegistrationPayload":
+      "Review the registration information and try again.",
+    "auth.errors.passwordPolicyFailed":
+      "The password does not meet the security requirements.",
+    "auth.errors.sessionExpired":
+      "Your session has expired. Sign in again.",
+    "auth.errors.unauthorized":
+      "You are not authorized to perform this action.",
+    "auth.errors.userNotAvailable":
+      "This account is not available.",
+    "auth.errors.requestFailed":
+      "The request could not be completed.",
 
   "dashboard.title": "Dashboard",
   "dashboard.subtitle":
@@ -275,4 +367,108 @@ export const en: Messages = {
   
   "layout.workspaceTagline": "Sovereign trade execution workspace",
   "dashboard.quickActionsSubtitle": "Workspace shortcuts",
+
+  "auth.verifyEmail.loadingTitle":
+  "Verifying your email",
+  "auth.verifyEmail.loadingDescription":
+    "Please wait while we verify your email address.",
+  "auth.verifyEmail.successTitle":
+    "Email verified",
+  "auth.verifyEmail.successDescription":
+    "Your email address has been verified. You can now sign in.",
+  "auth.verifyEmail.signIn":
+    "Sign in",
+  "auth.verifyEmail.errorTitle":
+    "Verification failed",
+  "auth.verifyEmail.missingToken":
+    "The verification link does not contain a valid token.",
+  "auth.verifyEmail.failed":
+    "The email address could not be verified.",
+  "auth.verifyEmail.returnToLogin":
+    "Return to sign in",
+
+      // Password reset
+  "auth.passwordReset.forgotTitle":
+    "Forgot your password?",
+
+  "auth.passwordReset.forgotSubtitle":
+    "Enter your verified email address and we will send you a secure reset link.",
+
+  "auth.passwordReset.email":
+    "Email address",
+
+  "auth.passwordReset.emailPlaceholder":
+    "client@example.com",
+
+  "auth.passwordReset.emailRequired":
+    "Enter your email address.",
+
+  "auth.passwordReset.sendLink":
+    "Send reset link",
+
+  "auth.passwordReset.sending":
+    "Sending reset link...",
+
+  "auth.passwordReset.requestAccepted":
+    "Your request has been accepted.",
+
+  "auth.passwordReset.checkInbox":
+    "If an eligible account exists for this email, a password reset link has been sent.",
+
+  "auth.passwordReset.requestFailed":
+    "The request could not be completed. Please try again.",
+
+  "auth.passwordReset.resetTitle":
+    "Create a new password",
+
+  "auth.passwordReset.resetSubtitle":
+    "Choose a strong password for your AI Hub client account.",
+
+  "auth.passwordReset.newPassword":
+    "New password",
+
+  "auth.passwordReset.newPasswordPlaceholder":
+    "Enter a new password",
+
+  "auth.passwordReset.confirmPassword":
+    "Confirm new password",
+
+  "auth.passwordReset.confirmPasswordPlaceholder":
+    "Enter the password again",
+
+  "auth.passwordReset.passwordHelp":
+    "Use at least 8 characters with at least one letter and one number.",
+
+  "auth.passwordReset.passwordPolicy":
+    "The password must contain at least 8 characters, one letter, and one number.",
+
+  "auth.passwordReset.passwordMismatch":
+    "The passwords do not match.",
+
+  "auth.passwordReset.tokenInvalid":
+    "This password reset link is invalid.",
+
+  "auth.passwordReset.tokenExpired":
+    "This password reset link has expired. Request a new link.",
+
+  "auth.passwordReset.tokenConsumed":
+    "This password reset link has already been used.",
+
+  "auth.passwordReset.confirmFailed":
+    "The password could not be reset. Please request a new link.",
+
+  "auth.passwordReset.resetButton":
+    "Reset password",
+
+  "auth.passwordReset.resetting":
+    "Resetting password...",
+
+  "auth.passwordReset.resetSuccess":
+    "Your password has been reset successfully. All previous sessions have been signed out.",
+
+  "auth.passwordReset.loginNow":
+    "Sign in with the new password",
+
+  "auth.passwordReset.returnToLogin":
+    "Return to sign in"
 };

@@ -1,6 +1,18 @@
-﻿import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+﻿import {
+  type FormEvent,
+  useState
+} from "react";
+import {
+  Link,
+  useNavigate
+} from "react-router-dom";
 import { authApi } from "../../features/auth/api";
+import {
+  resolveAuthErrorMessage
+} from "../../features/auth/reasonMessages";
+import {
+  isApiError
+} from "../../lib/apiClient";
 import {
   setAccessToken,
   setRefreshToken,
@@ -9,99 +21,376 @@ import {
 import { useI18n } from "../../i18n/useI18n";
 
 type LoginForm = {
-  email: string;
+  identifier: string;
   password: string;
 };
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { t } = useI18n();
 
-  const [form, setForm] = useState<LoginForm>({
-    email: "",
-    password: ""
-  });
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    t,
+    locale
+  } = useI18n();
 
-  function updateField<K extends keyof LoginForm>(key: K, value: LoginForm[K]) {
-    setForm((prev) => ({
-      ...prev,
+  const [form, setForm] =
+    useState<LoginForm>({
+      identifier: "",
+      password: ""
+    });
+
+  const [
+    verificationEmail,
+    setVerificationEmail
+  ] = useState("");
+
+  const [
+    showVerificationResend,
+    setShowVerificationResend
+  ] = useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [resending, setResending] =
+    useState(false);
+
+  function updateField<
+    K extends keyof LoginForm
+  >(
+    key: K,
+    value: LoginForm[K]
+  ) {
+    setForm((previous) => ({
+      ...previous,
       [key]: value
     }));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
-    setError("");
 
-    if (!form.email.trim()) {
-      setError(t("auth.login.emailRequired"));
+    setError("");
+    setSuccess("");
+    setShowVerificationResend(false);
+
+    const identifier =
+      form.identifier
+        .trim()
+        .toLowerCase();
+
+    if (!identifier) {
+      setError(
+        t(
+          "auth.login.identifierRequired"
+        )
+      );
+
       return;
     }
 
-    if (!form.password.trim()) {
-      setError(t("auth.login.passwordRequired"));
+    if (!form.password) {
+      setError(
+        t(
+          "auth.login.passwordRequired"
+        )
+      );
+
       return;
     }
 
     try {
       setLoading(true);
 
-      const result = await authApi.login({
-        email: form.email.trim().toLowerCase(),
-        password: form.password
-      });
+      const result =
+        await authApi.login({
+          identifier,
+          password: form.password,
+          expected_role: "client"
+        });
 
-      setAccessToken(result.access_token);
-      setRefreshToken(result.refresh_token);
+      setAccessToken(
+        result.access_token
+      );
+
+      setRefreshToken(
+        result.refresh_token
+      );
+
       setStoredUser(result.user);
 
       navigate("/app");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("auth.login.failed"));
+    } catch (caughtError) {
+      if (
+        isApiError(caughtError) &&
+        caughtError.reason ===
+          "EMAIL_NOT_VERIFIED"
+      ) {
+        setShowVerificationResend(
+          true
+        );
+
+        if (identifier.includes("@")) {
+          setVerificationEmail(
+            identifier
+          );
+        }
+      }
+
+      setError(
+        resolveAuthErrorMessage(
+          caughtError,
+          t,
+          "auth.login.failed"
+        )
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div>
-      <h1>{t("auth.login.title")}</h1>
-      <p>{t("auth.login.subtitle")}</p>
+  async function handleResendVerification() {
+    setError("");
+    setSuccess("");
 
-      <form className="stack-md" onSubmit={handleSubmit}>
-        <input
-          className="input"
-          type="email"
-          placeholder={t("auth.login.emailPlaceholder")}
-          value={form.email}
-          onChange={(event) => updateField("email", event.target.value)}
-        />
+    const email =
+      verificationEmail
+        .trim()
+        .toLowerCase();
 
-        <input
-          className="input"
-          type="password"
-          placeholder={t("auth.login.passwordPlaceholder")}
-          value={form.password}
-          onChange={(event) => updateField("password", event.target.value)}
-        />
+    if (!email) {
+      setError(
+        t(
+          "auth.login.verificationEmailRequired"
+        )
+      );
 
-        {error ? <p className="error-text">{error}</p> : null}
+      return;
+    }
 
-        <button className="button" type="submit" disabled={loading}>
-          {loading ? t("auth.login.submitting") : t("auth.login.submit")}
+    try {
+      setResending(true);
+
+      await authApi
+        .resendEmailVerification({
+          email,
+          locale
+        });
+
+      setSuccess(
+        t(
+          "auth.login.verificationSent"
+        )
+      );
+    } catch (caughtError) {
+      setError(
+        resolveAuthErrorMessage(
+          caughtError,
+          t,
+          "auth.login.resendFailed"
+        )
+      );
+    } finally {
+      setResending(false);
+    }
+  }
+
+    return (
+    <div className="lux-auth-form">
+      <div className="lux-auth-form__header">
+        <span className="lux-auth-form__eyebrow">
+          {locale === "ar"
+            ? "دخول العميل"
+            : "CLIENT SIGN IN"}
+        </span>
+
+        <h1>
+          {t("auth.login.title")}
+        </h1>
+
+        <p>
+          {t("auth.login.subtitle")}
+        </p>
+      </div>
+
+      <form
+        className="stack-md lux-auth-form__fields"
+        onSubmit={handleSubmit}
+        aria-busy={loading}
+      >
+        <label className="stack-sm">
+          <span>
+            {t(
+              "auth.login.identifier"
+            )}
+          </span>
+
+          <input
+            className="input"
+            type="text"
+            name="identifier"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            placeholder={t(
+              "auth.login.identifierPlaceholder"
+            )}
+            value={form.identifier}
+            disabled={loading}
+            onChange={(event) =>
+              updateField(
+                "identifier",
+                event.target.value
+              )
+            }
+          />
+        </label>
+
+        <label className="stack-sm">
+          <span>
+            {t(
+              "auth.login.password"
+            )}
+          </span>
+
+          <input
+            className="input"
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            required
+            placeholder={t(
+              "auth.login.passwordPlaceholder"
+            )}
+            value={form.password}
+            disabled={loading}
+            onChange={(event) =>
+              updateField(
+                "password",
+                event.target.value
+              )
+            }
+          />
+        </label>
+
+        {error ? (
+          <p
+            className="error-text"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
+
+        {success ? (
+          <p
+            className="success-text"
+            role="status"
+          >
+            {success}
+          </p>
+        ) : null}
+
+        <button
+          className="button"
+          type="submit"
+          disabled={
+            loading || resending
+          }
+        >
+          {loading
+            ? t(
+                "auth.login.submitting"
+              )
+            : t(
+                "auth.login.submit"
+              )}
         </button>
       </form>
 
-      <div className="stack-sm top-gap">
-        <p className="muted">
-          <Link to="/forgot-password">{t("auth.login.forgotPassword")}</Link>
+      {showVerificationResend ? (
+        <div
+          className="stack-md top-gap"
+          aria-live="polite"
+        >
+          <label className="stack-sm">
+            <span>
+              {t(
+                "auth.login.verificationEmail"
+              )}
+            </span>
+
+            <input
+              className="input"
+              type="email"
+              name="verificationEmail"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder={t(
+                "auth.login.verificationEmailPlaceholder"
+              )}
+              value={
+                verificationEmail
+              }
+              disabled={resending}
+              onChange={(event) =>
+                setVerificationEmail(
+                  event.target.value
+                )
+              }
+            />
+          </label>
+
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={
+              resending || loading
+            }
+            onClick={() => {
+              void handleResendVerification();
+            }}
+          >
+            {resending
+              ? t(
+                  "auth.login.resendingVerification"
+                )
+              : t(
+                  "auth.login.resendVerification"
+                )}
+          </button>
+        </div>
+      ) : null}
+
+      <div className="stack-sm lux-auth-form__footer">
+        <p>
+          <Link to="/forgot-password">
+            {t(
+              "auth.login.forgotPassword"
+            )}
+          </Link>
         </p>
 
-        <p className="muted">
-          {t("auth.login.newHere")}{" "}
-          <Link to="/register/client">{t("auth.login.createAccount")}</Link>
+        <p>
+          {t(
+            "auth.login.newHere"
+          )}{" "}
+
+          <Link to="/register/client">
+            {t(
+              "auth.login.createAccount"
+            )}
+          </Link>
         </p>
       </div>
     </div>

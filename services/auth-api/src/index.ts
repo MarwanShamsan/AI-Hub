@@ -1,35 +1,59 @@
-import cors from "cors";
-import express from "express";
+import { createApp } from "./app";
 import { env } from "./config/env";
-import authRoutes from "./routes/auth.routes";
+import { pool } from "./db/pool";
 
-const app = express();
+const app = createApp();
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      if (env.corsOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    credentials: false
-  })
+const server = app.listen(
+  env.port,
+  env.host,
+  () => {
+    console.log(
+      `Auth API running on http://${env.host}:${env.port}`
+    );
+  }
 );
 
-app.use(express.json());
+server.on("error", (error) => {
+  console.error("AUTH_API_START_ERROR", {
+    name: error.name,
+    message: error.message
+  });
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+  process.exitCode = 1;
 });
 
-app.use("/auth", authRoutes);
+async function shutdown(
+  signal: string
+): Promise<void> {
+  console.info("AUTH_API_SHUTDOWN", {
+    signal
+  });
 
-app.listen(env.port, env.host, () => {
-  console.log(`Auth API running on http://${env.host}:${env.port}`);
+  server.close(async () => {
+    try {
+      await pool.end();
+      process.exit(0);
+    } catch (error) {
+      console.error(
+        "AUTH_API_SHUTDOWN_ERROR",
+        {
+          errorName:
+            error instanceof Error
+              ? error.name
+              : "UnknownError"
+        }
+      );
+
+      process.exit(1);
+    }
+  });
+}
+
+process.once("SIGINT", () => {
+  void shutdown("SIGINT");
+});
+
+process.once("SIGTERM", () => {
+  void shutdown("SIGTERM");
 });

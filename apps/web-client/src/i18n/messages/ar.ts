@@ -18,35 +18,132 @@ export const ar: Messages = {
   "layout.nav.certificates": "الشهادات",
   "layout.nav.myRequests": "طلباتي",
 
-  "auth.login.title": "تسجيل الدخول",
-  "auth.login.subtitle": "الدخول إلى بوابة العميل في AI Hub.",
-  "auth.login.emailRequired": "البريد الإلكتروني مطلوب.",
-  "auth.login.passwordRequired": "كلمة المرور مطلوبة.",
-  "auth.login.failed": "فشل تسجيل الدخول.",
-  "auth.login.emailPlaceholder": "البريد الإلكتروني",
-  "auth.login.passwordPlaceholder": "كلمة المرور",
-  "auth.login.submit": "دخول",
-  "auth.login.submitting": "جارٍ تسجيل الدخول...",
-  "auth.login.forgotPassword": "هل نسيت كلمة المرور؟",
-  "auth.login.newHere": "جديد هنا؟",
-  "auth.login.createAccount": "أنشئ حساب عميل",
+    "auth.login.title":
+    "تسجيل الدخول",
+    "auth.login.subtitle":
+      "ادخل إلى مساحة عمل العميل في AI Hub.",
+    "auth.login.identifier":
+      "اسم المستخدم أو البريد الإلكتروني",
+    "auth.login.identifierRequired":
+      "اسم المستخدم أو البريد الإلكتروني مطلوب.",
+    "auth.login.identifierPlaceholder":
+      "أدخل اسم المستخدم أو البريد الإلكتروني",
+    "auth.login.password":
+      "كلمة المرور",
+    "auth.login.passwordRequired":
+      "كلمة المرور مطلوبة.",
+    "auth.login.passwordPlaceholder":
+      "أدخل كلمة المرور",
+    "auth.login.failed":
+      "تعذر تسجيل الدخول.",
+    "auth.login.submit":
+      "تسجيل الدخول",
+    "auth.login.submitting":
+      "جارٍ تسجيل الدخول...",
+    "auth.login.forgotPassword":
+      "هل نسيت كلمة المرور؟",
+    "auth.login.newHere":
+      "جديد في AI Hub؟",
+    "auth.login.createAccount":
+      "إنشاء حساب عميل",
+    "auth.login.verificationEmail":
+      "البريد الإلكتروني للتحقق",
+    "auth.login.verificationEmailRequired":
+      "أدخل البريد الإلكتروني المستخدم لإنشاء الحساب.",
+    "auth.login.verificationEmailPlaceholder":
+      "أدخل بريدك الإلكتروني",
+    "auth.login.resendVerification":
+      "إعادة إرسال رسالة التحقق",
+    "auth.login.resendingVerification":
+      "جارٍ إرسال رسالة التحقق...",
+    "auth.login.verificationSent":
+      "إذا كان الحساب مؤهلًا، فقد تم إرسال رسالة تحقق.",
+    "auth.login.resendFailed":
+      "تعذر إعادة إرسال رسالة التحقق.",
 
-  "auth.register.title": "إنشاء حساب عميل",
-  "auth.register.subtitle":
-    "أنشئ حساب عميل للوصول إلى طلبات التوريد وتتبع الصفقات.",
-  "auth.register.emailRequired": "البريد الإلكتروني مطلوب.",
-  "auth.register.passwordRequired": "كلمة المرور مطلوبة.",
-  "auth.register.passwordMin": "يجب أن تكون كلمة المرور 6 أحرف على الأقل.",
-  "auth.register.passwordMismatch": "كلمتا المرور غير متطابقتين.",
-  "auth.register.failed": "فشل إنشاء الحساب.",
-  "auth.register.emailPlaceholder": "البريد الإلكتروني",
-  "auth.register.passwordPlaceholder": "كلمة المرور",
-  "auth.register.confirmPasswordPlaceholder": "تأكيد كلمة المرور",
-  "auth.register.submit": "إنشاء حساب عميل",
-  "auth.register.submitting": "جارٍ إنشاء الحساب...",
-  "auth.register.haveAccount": "لديك حساب بالفعل؟",
-  "auth.register.signIn": "سجّل الدخول",
+    "auth.register.title":
+      "إنشاء حساب عميل",
+    "auth.register.subtitle":
+      "أنشئ حساب عميل للوصول إلى طلبات التوريد وتتبع الصفقات.",
+    "auth.register.username":
+      "اسم المستخدم",
+    "auth.register.usernameRequired":
+      "اسم المستخدم مطلوب.",
+    "auth.register.usernameInvalid":
+      "استخدم من 3 إلى 32 حرفًا إنجليزيًا صغيرًا أو رقمًا أو نقطة أو شرطة سفلية أو شرطة.",
+    "auth.register.usernamePlaceholder":
+      "اختر اسم مستخدم",
+    "auth.register.email":
+      "البريد الإلكتروني",
+    "auth.register.emailRequired":
+      "البريد الإلكتروني مطلوب.",
+    "auth.register.password":
+      "كلمة المرور",
+    "auth.register.passwordRequired":
+      "كلمة المرور مطلوبة.",
+    "auth.register.passwordPolicy":
+      "يجب أن تتكون كلمة المرور من 8 إلى 128 خانة وتحتوي على حرف واحد ورقم واحد على الأقل.",
+    "auth.register.passwordMismatch":
+      "كلمتا المرور غير متطابقتين.",
+    "auth.register.failed":
+      "تعذر إنشاء الحساب.",
+    "auth.register.emailPlaceholder":
+      "أدخل بريدك الإلكتروني",
+    "auth.register.passwordPlaceholder":
+      "أنشئ كلمة مرور",
+    "auth.register.confirmPassword":
+      "تأكيد كلمة المرور",
+    "auth.register.confirmPasswordPlaceholder":
+      "أدخل كلمة المرور مرة أخرى",
+    "auth.register.submit":
+      "إنشاء حساب عميل",
+    "auth.register.submitting":
+      "جارٍ إنشاء الحساب...",
+    "auth.register.haveAccount":
+      "لديك حساب بالفعل؟",
+    "auth.register.signIn":
+      "تسجيل الدخول",
+    "auth.register.pendingTitle":
+      "تحقق من بريدك الإلكتروني",
+    "auth.register.pendingDescription":
+      "أرسلنا رابط تحقق إلى البريد الإلكتروني أدناه. افتح الرابط قبل تسجيل الدخول.",
+    "auth.register.returnToLogin":
+      "العودة إلى تسجيل الدخول",
 
+    "auth.errors.emailNotVerified":
+      "تحقق من بريدك الإلكتروني قبل تسجيل الدخول.",
+    "auth.errors.emailAlreadyVerified":
+      "تم التحقق من هذا البريد الإلكتروني مسبقًا.",
+    "auth.errors.verificationTokenInvalid":
+      "رابط التحقق غير صالح.",
+    "auth.errors.verificationTokenExpired":
+      "انتهت صلاحية رابط التحقق.",
+    "auth.errors.verificationTokenConsumed":
+      "تم استخدام رابط التحقق مسبقًا.",
+    "auth.errors.resendRateLimited":
+      "تم إرسال عدد كبير من طلبات التحقق. حاول لاحقًا.",
+    "auth.errors.invalidCredentials":
+      "اسم المستخدم أو البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "auth.errors.roleMismatch":
+      "هذا الحساب ليس حساب عميل.",
+    "auth.errors.usernameAlreadyExists":
+      "اسم المستخدم مستخدم بالفعل.",
+    "auth.errors.emailAlreadyExists":
+      "البريد الإلكتروني مسجل بالفعل.",
+    "auth.errors.invalidRegistrationPayload":
+      "راجع بيانات التسجيل ثم حاول مرة أخرى.",
+    "auth.errors.passwordPolicyFailed":
+      "كلمة المرور لا تستوفي متطلبات الأمان.",
+    "auth.errors.sessionExpired":
+      "انتهت الجلسة. سجل الدخول مرة أخرى.",
+    "auth.errors.unauthorized":
+      "ليست لديك صلاحية لتنفيذ هذا الإجراء.",
+    "auth.errors.userNotAvailable":
+      "هذا الحساب غير متاح.",
+    "auth.errors.requestFailed":
+      "تعذر إكمال الطلب.",
+
+    
   "dashboard.title": "لوحة التحكم",
   "dashboard.subtitle":
     "عرض مشتق للصفقات من إسقاطات الاستعلام السيادية للقراءة فقط.",
@@ -274,5 +371,109 @@ export const ar: Messages = {
   "certificates.empty": "لا توجد شهادات متاحة.",
 
   "layout.workspaceTagline": "مساحة عمل تنفيذ سيادي للتجارة",
-"dashboard.quickActionsSubtitle": "اختصارات مساحة العمل",
+  "dashboard.quickActionsSubtitle": "اختصارات مساحة العمل",
+
+  "auth.verifyEmail.loadingTitle":
+    "جارٍ التحقق من بريدك الإلكتروني",
+  "auth.verifyEmail.loadingDescription":
+    "يرجى الانتظار بينما نتحقق من بريدك الإلكتروني.",
+  "auth.verifyEmail.successTitle":
+    "تم التحقق من البريد الإلكتروني",
+  "auth.verifyEmail.successDescription":
+    "تم التحقق من بريدك الإلكتروني بنجاح. يمكنك الآن تسجيل الدخول.",
+  "auth.verifyEmail.signIn":
+    "تسجيل الدخول",
+  "auth.verifyEmail.errorTitle":
+    "فشل التحقق",
+  "auth.verifyEmail.missingToken":
+    "لا يحتوي رابط التحقق على رمز صالح.",
+  "auth.verifyEmail.failed":
+    "تعذر التحقق من البريد الإلكتروني.",
+  "auth.verifyEmail.returnToLogin":
+    "العودة إلى تسجيل الدخول",
+
+  // Password reset
+  "auth.passwordReset.forgotTitle":
+    "هل نسيت كلمة المرور؟",
+
+  "auth.passwordReset.forgotSubtitle":
+    "أدخل بريدك الإلكتروني الموثق وسنرسل إليك رابطًا آمنًا لإعادة تعيين كلمة المرور.",
+
+  "auth.passwordReset.email":
+    "البريد الإلكتروني",
+
+  "auth.passwordReset.emailPlaceholder":
+    "client@example.com",
+
+  "auth.passwordReset.emailRequired":
+    "أدخل بريدك الإلكتروني.",
+
+  "auth.passwordReset.sendLink":
+    "إرسال رابط الاستعادة",
+
+  "auth.passwordReset.sending":
+    "جارٍ إرسال الرابط...",
+
+  "auth.passwordReset.requestAccepted":
+    "تم قبول طلبك.",
+
+  "auth.passwordReset.checkInbox":
+    "إذا كان هناك حساب مؤهل مرتبط بهذا البريد، فقد تم إرسال رابط إعادة تعيين كلمة المرور.",
+
+  "auth.passwordReset.requestFailed":
+    "تعذر إكمال الطلب. حاول مرة أخرى.",
+
+  "auth.passwordReset.resetTitle":
+    "إنشاء كلمة مرور جديدة",
+
+  "auth.passwordReset.resetSubtitle":
+    "اختر كلمة مرور قوية لحساب العميل في AI Hub.",
+
+  "auth.passwordReset.newPassword":
+    "كلمة المرور الجديدة",
+
+  "auth.passwordReset.newPasswordPlaceholder":
+    "أدخل كلمة المرور الجديدة",
+
+  "auth.passwordReset.confirmPassword":
+    "تأكيد كلمة المرور الجديدة",
+
+  "auth.passwordReset.confirmPasswordPlaceholder":
+    "أدخل كلمة المرور مرة أخرى",
+
+  "auth.passwordReset.passwordHelp":
+    "استخدم 8 أحرف على الأقل، وتأكد من وجود حرف ورقم واحد على الأقل.",
+
+  "auth.passwordReset.passwordPolicy":
+    "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل وحرف واحد ورقم واحد.",
+
+  "auth.passwordReset.passwordMismatch":
+    "كلمتا المرور غير متطابقتين.",
+
+  "auth.passwordReset.tokenInvalid":
+    "رابط إعادة تعيين كلمة المرور غير صالح.",
+
+  "auth.passwordReset.tokenExpired":
+    "انتهت صلاحية رابط إعادة تعيين كلمة المرور. اطلب رابطًا جديدًا.",
+
+  "auth.passwordReset.tokenConsumed":
+    "تم استخدام رابط إعادة تعيين كلمة المرور مسبقًا.",
+
+  "auth.passwordReset.confirmFailed":
+    "تعذر إعادة تعيين كلمة المرور. اطلب رابطًا جديدًا.",
+
+  "auth.passwordReset.resetButton":
+    "إعادة تعيين كلمة المرور",
+
+  "auth.passwordReset.resetting":
+    "جارٍ إعادة تعيين كلمة المرور...",
+
+  "auth.passwordReset.resetSuccess":
+    "تم تغيير كلمة المرور بنجاح، وتم تسجيل الخروج من جميع الجلسات السابقة.",
+
+  "auth.passwordReset.loginNow":
+    "تسجيل الدخول بكلمة المرور الجديدة",
+
+  "auth.passwordReset.returnToLogin":
+    "العودة إلى تسجيل الدخول"
 };

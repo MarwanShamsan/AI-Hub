@@ -1,47 +1,103 @@
-import dotenv from "dotenv";
 import path from "node:path";
+import dotenv from "dotenv";
 import { Pool } from "pg";
-
 import { buildServer } from "./http/server";
 import { registerRoutes } from "./http/routes";
-import { RequestRepository } from "./repositories/request.repository";
-import { RequestFileRepository } from "./repositories/request-file.repository";
 import { RequestExtractionRepository } from "./repositories/request-extraction.repository";
+import { RequestFileRepository } from "./repositories/request-file.repository";
+import { RequestRepository } from "./repositories/request.repository";
+import { SupplierDocumentDeclarationRepository } from "./repositories/supplier-document-declaration.repository";
+import { SupplierExtractionRepository } from "./repositories/supplier-extraction.repository";
+import { SupplierFileRepository } from "./repositories/supplier-file.repository";
+import { SupplierRepository } from "./repositories/supplier.repository";
+import { SupplierExtractionService } from "./services/supplier-extraction.service";
+import { SupplierQualificationService } from "./services/supplier-qualification.service";
 
 dotenv.config({
-  path: path.resolve(process.cwd(), "services/request-api/.env")
+  path: path.resolve(__dirname, ".env")
 });
 
-async function main() {
-  const PORT = Number(process.env.PORT ?? process.env.REQUEST_API_PORT ?? 3003);
-  const DATABASE_URL = process.env.DATABASE_URL;
+async function main(): Promise<void> {
+  const port = Number(
+    process.env.PORT ??
+      process.env.REQUEST_API_PORT ??
+      3003
+  );
 
-  if (!DATABASE_URL) {
-    throw new Error("DATABASE_URL is required");
-  }
+  console.log(
+    "[request-api] ENV file =",
+    path.resolve(__dirname, ".env")
+  );
 
-  const pool = new Pool({ connectionString: DATABASE_URL });
+  console.log(
+    "[request-api] CORS_ORIGIN =",
+    process.env.CORS_ORIGIN
+  );
+
+  console.log(
+    "[request-api] JWT_PUBLIC_KEY_PEM exists =",
+    Boolean(process.env.JWT_PUBLIC_KEY_PEM)
+  );
+
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL
+  });
+
   const requestRepo = new RequestRepository(pool);
   const requestFileRepo = new RequestFileRepository(pool);
-  const requestExtractionRepo = new RequestExtractionRepository(pool);
+  const requestExtractionRepo =
+    new RequestExtractionRepository(pool);
+
+  const supplierRepo = new SupplierRepository(pool);
+  const supplierFileRepo =
+    new SupplierFileRepository(pool);
+  const supplierExtractionRepo =
+    new SupplierExtractionRepository(pool);
+
+  const supplierDocumentDeclarationRepo =
+    new SupplierDocumentDeclarationRepository(pool);
+
+  const supplierExtractionService =
+    new SupplierExtractionService();
+
+  const supplierQualificationService =
+    new SupplierQualificationService(
+      supplierRepo,
+      supplierFileRepo,
+      supplierExtractionRepo,
+      supplierDocumentDeclarationRepo
+    );
 
   const app = await buildServer();
-
-  app.get("/health", async () => {
-    return { status: "ok" };
-  });
 
   await registerRoutes(app, {
     requestRepo,
     requestFileRepo,
-    requestExtractionRepo
+    requestExtractionRepo,
+
+    supplierRepo,
+    supplierFileRepo,
+    supplierExtractionRepo,
+    supplierDocumentDeclarationRepo,
+    supplierExtractionService,
+    supplierQualificationService
   });
 
-  const address = await app.listen({ port: PORT, host: "0.0.0.0" });
-  console.log(`Request API listening at ${address}`);
+  await app.listen({
+    port,
+    host: "0.0.0.0"
+  });
+
+  console.log(
+    `[request-api] listening on :${port}`
+  );
 }
 
-main().catch((err) => {
-  console.error(err);
+main().catch((error) => {
+  console.error(
+    "[request-api] fatal error",
+    error
+  );
+
   process.exit(1);
 });
