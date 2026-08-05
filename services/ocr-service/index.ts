@@ -1,48 +1,153 @@
-import path from "node:path";
+import * as path from "node:path";
 import * as dotenv from "dotenv";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 
-dotenv.config({
-  path: path.resolve(
-    process.cwd(),
-    "services/ocr-service/.env"
-  )
-});
-
 import { registerOcrRoutes } from "./http/routes";
 import { ExtractDocumentUseCase } from "./application/extract-document";
 import { PdfTextProvider } from "./providers/pdf-text.provider";
-import { TesseractOcrProvider } from "./providers/tesseract-ocr.provider";
+import { NoopOcrProvider } from "./providers/noop-ocr.provider";
 import { AzureDocumentIntelligenceProvider } from "./providers/azure-document-intelligence.provider";
+import type { OcrProvider } from "./domain/ocr-provider";
 
-async function main() {
+/**
+ * Load the local .env file only during local development.
+ *
+ * Render injects environment variables directly into process.env,
+ * so it must not depend on a committed or local .env file.
+ */
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({
+    path: path.resolve(
+      process.cwd(),
+      "services/ocr-service/.env"
+    )
+  });
+}
+
+type OcrProviderConstructor =
+  new () => OcrProvider;
+
+type TesseractProviderModule = {
+  TesseractOcrProvider:
+    OcrProviderConstructor;
+};
+
+/**
+ * Tesseract currently depends on a platform-specific PDF package.
+ *
+ * The module path is deliberately constructed at runtime so Node and
+ * TypeScript do not eagerly load the package when Azure is selected.
+ */
+function createFallbackOcrProvider(
+  configuredProvider: string
+): OcrProvider {
+  if (configuredProvider === "azure") {
+    return new NoopOcrProvider();
+  }
+
+  if (process.platform === "linux") {
+    throw new Error(
+      "The local Tesseract OCR provider is not supported on Linux by the current implementation. Set DOCUMENT_AI_PROVIDER=azure."
+    );
+  }
+
+  const modulePath = [
+    "./providers",
+    "tesseract-ocr.provider"
+  ].join("/");
+
+  const providerModule =
+    require(
+      modulePath
+    ) as TesseractProviderModule;
+
+  return new providerModule
+    .TesseractOcrProvider();
+}
+
+function resolveConfiguredProvider():
+  string {
+  return (
+    process.env
+      .DOCUMENT_AI_PROVIDER
+      ?.trim()
+      .toLowerCase() ??
+    "tesseract"
+  );
+}
+
+function resolvePort(): number {
+  const rawPort =
+    process.env.PORT ??
+    process.env.OCR_SERVICE_PORT ??
+    "3010";
+
+  const port =
+    Number(rawPort);
+
+  if (
+    !Number.isInteger(port) ||
+    port <= 0 ||
+    port > 65_535
+  ) {
+    throw new Error(
+      `OCR service port is invalid: ${rawPort}`
+    );
+  }
+
+  return port;
+}
+
+async function main(): Promise<void> {
+  const configuredProvider =
+    resolveConfiguredProvider();
+
+  if (
+    configuredProvider !== "azure" &&
+    configuredProvider !== "tesseract"
+  ) {
+    throw new Error(
+      `Unsupported DOCUMENT_AI_PROVIDER: ${configuredProvider}`
+    );
+  }
+
   const app = Fastify({
     logger: true
   });
 
+  /*
+   * This service is intended for server-to-server requests.
+   * Browser CORS access is therefore disabled.
+   */
   await app.register(cors, {
-    origin: true
+    origin: false
   });
 
   const pdfTextProvider =
     new PdfTextProvider();
 
-  const fallbackOcrProvider =
-    new TesseractOcrProvider();
-
   const azureProvider =
     new AzureDocumentIntelligenceProvider();
 
-  const configuredProvider =
-    process.env.DOCUMENT_AI_PROVIDER
-      ?.trim()
-      .toLowerCase();
+  if (
+    configuredProvider === "azure" &&
+    !azureProvider.isConfigured()
+  ) {
+    throw new Error(
+      "Azure Document Intelligence is selected, but its endpoint or credentials are incomplete."
+    );
+  }
 
   const documentUnderstandingProvider =
     configuredProvider === "azure"
       ? azureProvider
       : undefined;
+
+  const fallbackOcrProvider =
+    createFallbackOcrProvider(
+      configuredProvider
+    );
 
   const extractDocument =
     new ExtractDocumentUseCase(
@@ -55,43 +160,35 @@ async function main() {
     extractDocument
   });
 
-  const port = Number(
-    process.env.PORT ??
-      process.env.OCR_SERVICE_PORT ??
-      3010
-  );
-
-if (
-  !Number.isInteger(port) ||
-  port <= 0
-) {
-  throw new Error(
-    "OCR service port must be a positive integer"
-  );
-}
+  const port =
+    resolvePort();
 
   await app.listen({
     port,
     host: "0.0.0.0"
   });
 
-  console.log(
-    `[ocr-service] listening on :${port}`
-  );
-
-  console.log(
-    `[ocr-service] primary provider = ${
-      documentUnderstandingProvider?.isConfigured()
-        ? "AZURE_DOCUMENT_INTELLIGENCE"
-        : "TESSERACT_FALLBACK"
-    }`
+  app.log.info(
+    {
+      port,
+      provider:
+        configuredProvider === "azure"
+          ? "AZURE_DOCUMENT_INTELLIGENCE"
+          : "TESSERACT"
+    },
+    "OCR service started"
   );
 }
 
-main().catch((error) => {
+main().catch((error: unknown) => {
+  const message =
+    error instanceof Error
+      ? error.message
+      : String(error);
+
   console.error(
-    "[ocr-service] fatal error",
-    error
+    "[ocr-service] fatal error:",
+    message
   );
 
   process.exit(1);
