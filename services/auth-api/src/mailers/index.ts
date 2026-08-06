@@ -4,21 +4,29 @@ import {
   DevelopmentEmailVerificationMailer
 } from "./development-email-verification-mailer";
 
-import type {
-  EmailVerificationMailer
-} from "./email-verification-mailer";
-
-import {
-  SmtpEmailVerificationMailer
-} from "./smtp-email-verification-mailer";
-
 import {
   DevelopmentPasswordResetMailer
 } from "./development-password-reset-mailer";
 
 import type {
+  EmailVerificationMailer
+} from "./email-verification-mailer";
+
+import type {
   PasswordResetMailer
 } from "./password-reset-mailer";
+
+import {
+  ResendEmailVerificationMailer
+} from "./resend-email-verification-mailer";
+
+import {
+  ResendPasswordResetMailer
+} from "./resend-password-reset-mailer";
+
+import {
+  SmtpEmailVerificationMailer
+} from "./smtp-email-verification-mailer";
 
 import {
   SmtpPasswordResetMailer
@@ -32,20 +40,22 @@ let cachedPasswordResetMailer:
 
 export function createEmailVerificationMailer():
   EmailVerificationMailer {
-  if (
-    env.emailProvider ===
-    "development"
-  ) {
-    if (env.isProduction) {
-      throw new Error(
-        "EMAIL_PROVIDER=development is forbidden in production"
-      );
-    }
+  switch (env.emailProvider) {
+    case "development":
+      if (env.isProduction) {
+        throw new Error(
+          "EMAIL_PROVIDER=development is forbidden in production"
+        );
+      }
 
-    return new DevelopmentEmailVerificationMailer();
+      return new DevelopmentEmailVerificationMailer();
+
+    case "resend":
+      return new ResendEmailVerificationMailer();
+
+    case "smtp":
+      return new SmtpEmailVerificationMailer();
   }
-
-  return new SmtpEmailVerificationMailer();
 }
 
 export function getEmailVerificationMailer():
@@ -60,20 +70,22 @@ export function getEmailVerificationMailer():
 
 export function createPasswordResetMailer():
   PasswordResetMailer {
-  if (
-    env.emailProvider ===
-    "development"
-  ) {
-    if (env.isProduction) {
-      throw new Error(
-        "EMAIL_PROVIDER=development is forbidden in production"
-      );
-    }
+  switch (env.emailProvider) {
+    case "development":
+      if (env.isProduction) {
+        throw new Error(
+          "EMAIL_PROVIDER=development is forbidden in production"
+        );
+      }
 
-    return new DevelopmentPasswordResetMailer();
+      return new DevelopmentPasswordResetMailer();
+
+    case "resend":
+      return new ResendPasswordResetMailer();
+
+    case "smtp":
+      return new SmtpPasswordResetMailer();
   }
-
-  return new SmtpPasswordResetMailer();
 }
 
 export function getPasswordResetMailer():

@@ -5,7 +5,10 @@ dotenv.config({
   path: path.resolve(__dirname, "../../.env")
 });
 
-type EmailProvider = "development" | "smtp";
+type EmailProvider =
+  | "development"
+  | "smtp"
+  | "resend";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -83,15 +86,25 @@ function parseBoolean(
   );
 }
 
-function parseEmailProvider(value: string | undefined): EmailProvider {
-  const normalized = (value ?? "development").trim().toLowerCase();
+function parseEmailProvider(
+  value: string | undefined
+): EmailProvider {
+  const normalized = (
+    value ?? "development"
+  )
+    .trim()
+    .toLowerCase();
 
-  if (normalized === "development" || normalized === "smtp") {
+  if (
+    normalized === "development" ||
+    normalized === "smtp" ||
+    normalized === "resend"
+  ) {
     return normalized;
   }
 
   throw new Error(
-    "Environment variable EMAIL_PROVIDER must be development or smtp"
+    "Environment variable EMAIL_PROVIDER must be development, smtp, or resend"
   );
 }
 
@@ -143,10 +156,17 @@ const smtpPassword =
     ? requireEnv("SMTP_PASSWORD")
     : optionalEnv("SMTP_PASSWORD");
 
+const resendApiKey =
+  emailProvider === "resend"
+    ? requireEnv("RESEND_API_KEY")
+    : optionalEnv("RESEND_API_KEY");
+
 const emailFrom =
-  emailProvider === "smtp"
+  emailProvider === "smtp" ||
+  emailProvider === "resend"
     ? requireEnv("EMAIL_FROM")
-    : optionalEnv("EMAIL_FROM") ?? "AI Hub <no-reply@localhost>";
+    : optionalEnv("EMAIL_FROM") ??
+      "AI Hub <no-reply@localhost>";
 
 export const env = {
   nodeEnv,
@@ -201,6 +221,10 @@ export const env = {
     user: smtpUser,
     password: smtpPassword
   },
+
+  resend: {
+      apiKey: resendApiKey
+    },
 
   emailFrom,
 
