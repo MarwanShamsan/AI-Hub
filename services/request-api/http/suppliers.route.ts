@@ -29,12 +29,10 @@ type Deps = {
   supplierQualificationService: SupplierQualificationService;
 };
 
-type ExtendedSupplierFileRecord = SupplierFileRecord & {
-  file_sha256?: string | null;
-  issuing_country?: string | null;
-  supersedes_file_id?: string | null;
-  is_current?: boolean;
-};
+type SupplierFileView =
+  SupplierFileRecord & {
+    is_current: boolean;
+  };
 
 type DocumentReviewStatus =
   | "PROCESSING_FAILED"
@@ -124,20 +122,18 @@ function sha256(buffer: Buffer): string {
 
 function enrichSupplierFiles(
   records: SupplierFileRecord[]
-): Array<
-  SupplierFileRecord & {
-    file_sha256: string | null;
-    issuing_country: string | null;
-    supersedes_file_id: string | null;
-    is_current: boolean;
-  }
-> {
-  const extendedRecords =
-    records as ExtendedSupplierFileRecord[];
+): SupplierFileView[] {
+  /*
+   * listBySupplier returns newest records first.
+   *
+   * A file is no longer current when:
+   * 1. Another immutable file explicitly supersedes it.
+   * 2. A newer file of the same document type exists.
+   */
+  const explicitlySupersededIds =
+    new Set<string>();
 
-  const explicitlySupersededIds = new Set<string>();
-
-  for (const record of extendedRecords) {
+  for (const record of records) {
     if (record.supersedes_file_id) {
       explicitlySupersededIds.add(
         record.supersedes_file_id
@@ -148,39 +144,31 @@ function enrichSupplierFiles(
   const newestDocumentTypeSeen =
     new Set<SupplierDocumentType>();
 
-  return extendedRecords.map((record) => {
-    let isCurrent: boolean;
+  return records.map((record) => {
+    let isCurrent = true;
 
-    if (typeof record.is_current === "boolean") {
-      isCurrent = record.is_current;
-    } else if (
-      explicitlySupersededIds.has(record.id)
-    ) {
-      isCurrent = false;
-    } else if (!record.document_type) {
-      isCurrent = true;
-    } else if (
-      newestDocumentTypeSeen.has(
-        record.document_type
+    if (
+      explicitlySupersededIds.has(
+        record.id
       )
     ) {
       isCurrent = false;
-    } else {
-      newestDocumentTypeSeen.add(
-        record.document_type
-      );
-
-      isCurrent = true;
+    } else if (record.document_type) {
+      if (
+        newestDocumentTypeSeen.has(
+          record.document_type
+        )
+      ) {
+        isCurrent = false;
+      } else {
+        newestDocumentTypeSeen.add(
+          record.document_type
+        );
+      }
     }
 
     return {
       ...record,
-      file_sha256:
-        record.file_sha256 ?? null,
-      issuing_country:
-        record.issuing_country ?? null,
-      supersedes_file_id:
-        record.supersedes_file_id ?? null,
       is_current: isCurrent
     };
   });
@@ -1016,18 +1004,10 @@ export async function suppliersRoute(
           });
         }
 
-        /*
-         * The intersection preserves compatibility
-         * with both the old and upgraded repository.
-         */
         const createInput:
           Parameters<
             SupplierFileRepository["create"]
-          >[0] & {
-            file_sha256: string;
-            issuing_country: string | null;
-            supersedes_file_id: string | null;
-          } = {
+          >[0] = {
           supplier_id:
             supplier.supplier_id,
 
@@ -1071,33 +1051,53 @@ export async function suppliersRoute(
           supersedes_file_id:
             supersedesFileId
         };
-
         const storedRecord =
           await opts.supplierFileRepo.create(
             createInput
           );
 
-        const storedExtended =
-          storedRecord as ExtendedSupplierFileRecord;
+        /*
+        * Never claim an evidence hash that was not
+        * actually persisted and returned by Postgres.
+        */
+        if (
+          !storedRecord.file_sha256 ||
+          storedRecord.file_sha256 !==
+            fileHash
+        ) {
+          throw new Error(
+            "SUPPLIER_FILE_HASH_PERSISTENCE_FAILED"
+          );
+        }
 
-        const file = {
+        if (
+          (
+            storedRecord.issuing_country ??
+            null
+          ) !== issuingCountry
+        ) {
+          throw new Error(
+            "SUPPLIER_FILE_ISSUING_COUNTRY_PERSISTENCE_FAILED"
+          );
+        }
+
+        if (
+          (
+            storedRecord.supersedes_file_id ??
+            null
+          ) !== supersedesFileId
+        ) {
+          throw new Error(
+            "SUPPLIER_FILE_SUPERSESSION_PERSISTENCE_FAILED"
+          );
+        }
+
+        const file: SupplierFileView = {
           ...storedRecord,
-
-          file_sha256:
-            storedExtended.file_sha256 ??
-            fileHash,
-
-          issuing_country:
-            storedExtended.issuing_country ??
-            issuingCountry,
-
-          supersedes_file_id:
-            storedExtended.supersedes_file_id ??
-            supersedesFileId,
-
           is_current: true
         };
 
+        
         let extraction:
           | SupplierExtractionRecord
           | null = null;
@@ -1380,6 +1380,19 @@ export async function suppliersRoute(
             status: "REJECTED",
             reason:
               "SUPPLIER_FILE_NOT_FOUND"
+          });
+        }
+
+        /*
+        * Legacy or incomplete uploads without an
+        * evidence hash cannot be confirmed, corrected,
+        * reviewed, or used for qualification.
+        */
+        if (!file.file_sha256) {
+          return reply.status(409).send({
+            status: "REJECTED",
+            reason:
+              "SUPPLIER_EVIDENCE_HASH_REQUIRED"
           });
         }
 
