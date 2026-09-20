@@ -7,7 +7,7 @@ import { DealRegistryRepo } from "../event-ledger/repo/DealRegistryRepo";
 import { runMaterializerLoop } from "./materializers/runMaterializer";
 
 dotenv.config({
-  path: path.resolve(process.cwd(), "services/query-api/.env"),
+  path: path.resolve(process.cwd(), "services/query-api/.env")
 });
 
 async function main() {
@@ -18,22 +18,7 @@ async function main() {
     throw new Error("DATABASE_URL is required");
   }
 
-  // Temporary database configuration diagnostic.
-  // The password itself is never printed.
-  const parsedDbUrl = new URL(DATABASE_URL);
-
-  console.log("Database configuration:", {
-    dbHost: parsedDbUrl.hostname,
-    dbPort: parsedDbUrl.port,
-    dbUser: decodeURIComponent(parsedDbUrl.username),
-    dbName: parsedDbUrl.pathname,
-    hasPassword: parsedDbUrl.password.length > 0,
-  });
-
-  const pool = new Pool({
-    connectionString: DATABASE_URL,
-  });
-
+  const pool = new Pool({ connectionString: DATABASE_URL });
   const registry = new DealRegistryRepo(pool);
 
   const app = await buildServer();
@@ -42,8 +27,8 @@ async function main() {
     return { status: "ok" };
   });
 
-  runMaterializerLoop(pool).catch((error) => {
-    console.error("Materializer crashed", error);
+  runMaterializerLoop(pool).catch((e) => {
+    console.error("Materializer crashed", e);
     process.exit(1);
   });
 
@@ -51,15 +36,12 @@ async function main() {
 
   app.printRoutes();
 
-  const address = await app.listen({
-    port: PORT,
-    host: "0.0.0.0",
-  });
-
+  const address = await app.listen({ port: PORT, host: "0.0.0.0" });
   console.log(`Query API listening at ${address}`);
 }
 
-main().catch((error) => {
-  console.error("Query API startup failed", error);
+main().catch((err) => {
+  console.error(err);
   process.exit(1);
 });
+
